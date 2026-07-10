@@ -64,12 +64,13 @@ function ProgressSection() {
           />
           <motion.img
             initial={{ rotate: 6, opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            whileInView={{ opacity: 1, y: 0, rotate: 6 }}
+            whileHover={{ rotate: 0, scale: 1.06 }}
             transition={{ delay: 0.3, duration: 0.5 }}
             viewport={{ once: true }}
             src="/trophy_gold.png"
             alt="Trophy"
-            className="absolute -bottom-6 -right-6 h-24 w-24 drop-shadow-2xl"
+            className="absolute -bottom-6 -right-6 h-24 w-24 rounded-2xl shadow-card-xl"
           />
         </motion.div>
       </div>
