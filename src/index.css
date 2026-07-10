@@ -1,0 +1,107 @@
+@import "tailwindcss";
+
+@theme {
+  /* Primary palette — indigo */
+  --color-primary-50: #eef2ff;
+  --color-primary-100: #e0e7ff;
+  --color-primary-200: #c7d2fe;
+  --color-primary-300: #a5b4fc;
+  --color-primary-400: #818cf8;
+  --color-primary-500: #6366f1;
+  --color-primary-600: #4f46e5;
+  --color-primary-700: #4338ca;
+  --color-primary-800: #3730a3;
+  --color-primary-900: #312e81;
+
+  /* Secondary palette — purple */
+  --color-secondary-50: #faf5ff;
+  --color-secondary-100: #f3e8ff;
+  --color-secondary-200: #e9d5ff;
+  --color-secondary-300: #d8b4fe;
+  --color-secondary-400: #c084fc;
+  --color-secondary-500: #a855f7;
+  --color-secondary-600: #9333ea;
+
+  /* Semantic colors */
+  --color-success: #10b981;
+  --color-success-bg: #ecfdf5;
+  --color-success-border: #a7f3d0;
+  --color-success-text: #065f46;
+
+  --color-error: #ef4444;
+  --color-error-bg: #fef2f2;
+  --color-error-border: #fecaca;
+  --color-error-text: #991b1b;
+
+  --color-warning: #f59e0b;
+  --color-warning-bg: #fffbeb;
+  --color-warning-border: #fde68a;
+  --color-warning-text: #92400e;
+
+  /* Background */
+  --color-bg-page: #ffffff;
+
+  /* Warm neutral + lavender surface palette */
+  --color-cream: #fffaf0;
+  --color-cream-100: #fef3e2;
+  --color-lavender-50: #f3effe;
+  --color-lavender-100: #ece3fd;
+
+  /* Flat pastel palette (subject / sticker cards) */
+  --color-pastel-yellow: #fff1c2;
+  --color-pastel-yellow-ink: #92640a;
+  --color-pastel-pink: #ffe0ea;
+  --color-pastel-pink-ink: #a8235b;
+  --color-pastel-mint: #d3f5e6;
+  --color-pastel-mint-ink: #0f7a55;
+  --color-pastel-lavender: #e6defc;
+  --color-pastel-lavender-ink: #5b32b8;
+
+  /* Border radius tokens */
+  --radius-sm: 0.625rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 1.25rem;
+  --radius-xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* Shadow tokens (3-tier system) */
+  --shadow-card: 0 4px 6px -1px rgba(0,0,0,.07), 0 2px 4px -2px rgba(0,0,0,.05);
+  --shadow-card-lg: 0 10px 15px -3px rgba(0,0,0,.08), 0 4px 6px -4px rgba(0,0,0,.05);
+  --shadow-card-xl: 0 20px 40px -10px rgba(30,20,60,.18), 0 8px 16px -8px rgba(30,20,60,.08);
+  --shadow-btn: 0 4px 14px -2px rgba(79,70,229,.35);
+
+  /* Fonts */
+  --font-display: 'Baloo 2', 'Inter', system-ui, sans-serif;
+  --font-accent: 'Caveat', cursive;
+}
+
+:root {
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: #0f172a;
+  background-color: #f8fafc;
+  font-synthesis: none;
+  text-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  text-decoration: none;
+}
