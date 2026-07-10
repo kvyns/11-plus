@@ -1,5 +1,5 @@
-const AUTH_BASE_URL = 'https://y3hg6ns0xe.execute-api.eu-west-2.amazonaws.com/prod/v1'
-const QUIZ_BASE_URL = 'https://6uaslq6fse.execute-api.eu-west-2.amazonaws.com/prod/v1'
+const AUTH_BASE_URL = import.meta.env.VITE_AUTH_BASE_URL || 'https://y3hg6ns0xe.execute-api.eu-west-2.amazonaws.com/prod/v1'
+const QUIZ_BASE_URL = import.meta.env.VITE_QUIZ_BASE_URL || 'https://6uaslq6fse.execute-api.eu-west-2.amazonaws.com/prod/v1'
 
 function buildUrl(baseUrl, url, params) {
   const search = params ? new URLSearchParams(params).toString() : ''
@@ -128,5 +128,5 @@ export const notificationApi = {
   registerDeviceToken: (token, payload) => request({ url: '/device/token', method: 'POST', body: payload, headers: withToken(token), baseUrl: AUTH_BASE_URL }),
 }
 
-export const mediaBaseUrl = 'https://d1rbn1wov6bp1h.cloudfront.net'
+export const mediaBaseUrl = import.meta.env.VITE_MEDIA_BASE_URL || 'https://d1rbn1wov6bp1h.cloudfront.net'
 export const buildMediaUrl = (imageKey) => `${mediaBaseUrl}/${imageKey}`
