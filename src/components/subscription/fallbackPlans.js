@@ -1,0 +1,45 @@
+const fallbackPlans = [
+  {
+    id: 1,
+    name: 'Standard',
+    cycle: 'monthly',
+    price: '₹1,250',
+    billing: 'per month',
+    childLimit: 1,
+    subjects: ['Maths', 'English', 'Verbal Reasoning', 'Non-Verbal Reasoning'],
+    description: 'Full access to all 11+ exam preparation content for one child. Cancel anytime.',
+  },
+  {
+    id: 2,
+    name: 'Plus',
+    cycle: 'monthly',
+    price: '₹1,900',
+    billing: 'per month',
+    childLimit: 3,
+    subjects: ['Maths', 'English', 'Verbal Reasoning', 'Non-Verbal Reasoning'],
+    description: 'Full access for up to 3 children — perfect for siblings preparing together.',
+  },
+  {
+    id: 3,
+    name: 'Standard',
+    cycle: 'yearly',
+    price: '₹7,500',
+    billing: 'per year',
+    childLimit: 1,
+    subjects: ['Maths', 'English', 'Verbal Reasoning', 'Non-Verbal Reasoning'],
+    description: 'Full access to all 11+ exam preparation content for one child. Cancel anytime.',
+  },
+  {
+    id: 4,
+    name: 'Plus',
+    cycle: 'yearly',
+    price: '₹12,500',
+    billing: 'per year',
+    childLimit: 3,
+    badge: 'BEST VALUE',
+    subjects: ['Maths', 'English', 'Verbal Reasoning', 'Non-Verbal Reasoning'],
+    description: 'Full access for up to 3 children — perfect for siblings preparing together.',
+  },
+]
+
+export default fallbackPlans
