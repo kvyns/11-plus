@@ -2,13 +2,14 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppStore } from '../store/appStore.jsx'
 import { useToast } from '../store/toastStore.jsx'
-import { ChevronLeft, Loader2 } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import ProfileSummaryCard from '../components/profile/ProfileSummaryCard.jsx'
 import ReferralCard from '../components/profile/ReferralCard.jsx'
 import SupportCard from '../components/profile/SupportCard.jsx'
 import PersonalDetailsCard from '../components/profile/PersonalDetailsCard.jsx'
 import PasswordSection from '../components/profile/PasswordSection.jsx'
 import DangerZoneCard from '../components/profile/DangerZoneCard.jsx'
+import ParentLayout from '../components/dashboard/ParentLayout.jsx'
 
 const MAX_PROFILE_PIC_BYTES = 5 * 1024 * 1024
 
@@ -191,26 +192,14 @@ function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-cream">
-      {/* Header */}
-      <div className="bg-cream/90 backdrop-blur-md border-b border-amber-100 py-4 px-6 flex items-center justify-between sticky top-0 z-30">
-        <button
-          onClick={() => navigate(-1)}
-          className="h-10 w-10 rounded-full flex items-center justify-center text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
-        >
-          <ChevronLeft className="h-6 w-6" />
-        </button>
-        <h1 className="font-display text-xl font-bold text-slate-900">User Profile</h1>
-        <div className="w-10"></div>
-      </div>
-
+    <ParentLayout title="User Profile" activePage="profile">
       {!user ? (
         <div className="flex flex-col items-center justify-center py-24">
           <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
         </div>
       ) : (
         /* Content */
-        <div className="max-w-5xl mx-auto px-4 py-6 md:px-6 md:py-8 grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+        <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
           {/* LEFT COLUMN — summary, referral, support */}
           <div className="md:col-span-1 space-y-6 md:sticky md:top-24">
             <ProfileSummaryCard
@@ -261,7 +250,7 @@ function ProfilePage() {
           </div>
         </div>
       )}
-    </div>
+    </ParentLayout>
   )
 }
 

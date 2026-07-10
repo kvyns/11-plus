@@ -3,7 +3,7 @@ import { getPlanPrice } from '../../lib/subscriptionHelpers.js'
 
 function StickyCheckoutBar({ selectedPlan, billingCycle, selected, selectedChildIds, childrenCount, isContinuing, onContinue }) {
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-cream/95 backdrop-blur-md border-t border-amber-100 px-4 py-4 md:px-6">
+    <div className="fixed bottom-0 left-0 right-0 md:left-72 bg-cream/95 backdrop-blur-md border-t border-amber-100 px-4 py-4 md:px-6">
       <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
         <div className="text-sm text-slate-500 hidden sm:block">
           {selectedPlan ? (

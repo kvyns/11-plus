@@ -1,7 +1,7 @@
 import { X } from 'lucide-react'
 import { buildMediaUrl } from '../../services/api.js'
 
-function Sidebar({ sidebarOpen, setSidebarOpen, user, profilePicKey, menuItems, onMenuClick }) {
+function Sidebar({ sidebarOpen, setSidebarOpen, user, profilePicKey, menuItems, activePage, onMenuClick }) {
   return (
     <div
       className={`fixed top-0 left-0 h-screen w-72 bg-white border-r border-slate-100 transform transition-transform duration-300 z-40 pt-6 ${
@@ -51,7 +51,7 @@ function Sidebar({ sidebarOpen, setSidebarOpen, user, profilePicKey, menuItems, 
             className={`w-full text-left px-4 py-3 rounded-xl transition-colors font-semibold flex items-center gap-3 text-sm ${
               item.page === 'logout'
                 ? 'text-red-600 hover:bg-red-50'
-                : item.page === 'dashboard'
+                : item.page === activePage
                 ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
                 : 'text-slate-600 hover:bg-indigo-50 hover:text-indigo-600'
             }`}

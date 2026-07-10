@@ -3,13 +3,14 @@ import { useNavigate } from 'react-router-dom'
 import { useAppStore } from '../store/appStore.jsx'
 import { useToast } from '../store/toastStore.jsx'
 import {
-  CalendarDays, CheckCircle2, ChevronDown, ChevronLeft, Eye, EyeOff,
+  CalendarDays, CheckCircle2, ChevronDown, Eye, EyeOff,
   KeyRound, Loader2, User, UserPlus, VenusAndMars, XCircle,
 } from 'lucide-react'
 import AuthHero from '../components/auth/AuthHero.jsx'
 import IconInput from '../components/ui/IconInput.jsx'
 import SubmitButton from '../components/ui/SubmitButton.jsx'
 import AlertBanner from '../components/ui/AlertBanner.jsx'
+import ParentLayout from '../components/dashboard/ParentLayout.jsx'
 
 function AddChildPage() {
   const navigate = useNavigate()
@@ -125,21 +126,9 @@ function AddChildPage() {
   }
 
   return (
-    <div className="min-h-screen bg-cream">
-      {/* Header */}
-      <div className="bg-cream/90 backdrop-blur-md border-b border-amber-100 py-4 px-6 flex items-center justify-between sticky top-0 z-30">
-        <button
-          onClick={() => navigate(-1)}
-          className="h-10 w-10 rounded-full flex items-center justify-center text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
-        >
-          <ChevronLeft className="h-6 w-6" />
-        </button>
-        <h1 className="font-display text-lg font-bold text-slate-900">Add Child</h1>
-        <div className="w-10" />
-      </div>
-
+    <ParentLayout title="Add Child" activePage="add-child">
       {/* Content */}
-      <div className="flex flex-col items-center px-4 py-10">
+      <div className="flex flex-col items-center">
         <div className="w-full max-w-xl bg-white rounded-[1.75rem] shadow-card-xl p-6 md:p-8 border border-amber-100/60">
           <div className="mb-6">
             <AuthHero
@@ -302,7 +291,7 @@ function AddChildPage() {
           </form>
         </div>
       </div>
-    </div>
+    </ParentLayout>
   )
 }
 

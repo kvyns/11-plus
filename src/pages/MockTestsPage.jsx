@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { BarChart3, BookOpen, GraduationCap, ChevronLeft, ShoppingCart } from 'lucide-react'
+import { BarChart3, BookOpen, GraduationCap, ShoppingCart } from 'lucide-react'
 import { useAppStore } from '../store/appStore.jsx'
 import { isMockLive, formatDateRange } from '../lib/mockHelpers.js'
 import MockCard from '../components/mock/MockCard.jsx'
 import LeaderboardUnavailableModal from '../components/mock/LeaderboardUnavailableModal.jsx'
+import ParentLayout from '../components/dashboard/ParentLayout.jsx'
 
 // For a parent token, /mocks?status=purchased returns one row PER CHILD who
 // purchased the mock — so the same mockID repeats once for every child it
@@ -131,21 +132,9 @@ function MockTestsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-cream">
-      {/* Header */}
-      <div className="bg-cream/90 backdrop-blur-md border-b border-amber-100 py-4 px-6 flex items-center justify-between sticky top-0 z-30">
-        <button
-          onClick={() => navigate(-1)}
-          className="h-10 w-10 rounded-full flex items-center justify-center text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
-        >
-          <ChevronLeft className="h-6 w-6" />
-        </button>
-        <h1 className="font-display text-xl font-bold text-slate-900">Mock Tests</h1>
-        <div className="w-10"></div>
-      </div>
-
+    <ParentLayout title="Mock Tests" activePage="mock-tests">
       {/* Content */}
-      <div className="relative max-w-5xl mx-auto px-4 py-6 md:px-6 md:py-8">
+      <div className="relative max-w-5xl mx-auto">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute -top-4 right-0 h-56 w-56 rounded-full bg-indigo-200/30 blur-3xl"
@@ -293,7 +282,7 @@ function MockTestsPage() {
           <LeaderboardUnavailableModal onClose={() => setShowLeaderboardUnavailable(false)} />
         )}
       </div>
-    </div>
+    </ParentLayout>
   )
 }
 

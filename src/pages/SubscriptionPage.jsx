@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { ChevronLeft, Gift, RotateCcw } from 'lucide-react'
+import { Gift, RotateCcw } from 'lucide-react'
 import { useAppStore } from '../store/appStore.jsx'
 import { useToast } from '../store/toastStore.jsx'
 import { planIdOf, getPlanCycle } from '../lib/subscriptionHelpers.js'
@@ -9,9 +8,9 @@ import PlanCard from '../components/subscription/PlanCard.jsx'
 import PlanCardSkeleton from '../components/subscription/PlanCardSkeleton.jsx'
 import ChildPicker from '../components/subscription/ChildPicker.jsx'
 import StickyCheckoutBar from '../components/subscription/StickyCheckoutBar.jsx'
+import ParentLayout from '../components/dashboard/ParentLayout.jsx'
 
 function SubscriptionPage() {
-  const navigate = useNavigate()
   const { api } = useAppStore()
   const toast = useToast()
   const [selected, setSelected] = useState(null)
@@ -150,21 +149,9 @@ function SubscriptionPage() {
   }
 
   return (
-    <div className="min-h-screen bg-cream pb-28">
-      {/* Header */}
-      <div className="bg-cream/90 backdrop-blur-md border-b border-amber-100 py-4 px-6 flex items-center justify-between sticky top-0 z-30">
-        <button
-          onClick={() => navigate('/dashboard')}
-          className="h-10 w-10 rounded-full flex items-center justify-center text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
-        >
-          <ChevronLeft className="h-6 w-6" />
-        </button>
-        <h1 className="font-display text-xl font-bold text-slate-900">Subscription</h1>
-        <div className="w-10"></div>
-      </div>
-
+    <ParentLayout title="Subscription" activePage="subscription">
       {/* Content */}
-      <div className="relative max-w-4xl mx-auto px-4 py-8 md:px-6">
+      <div className="relative max-w-4xl mx-auto pb-28">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute -top-6 left-1/2 -translate-x-1/2 h-64 w-64 rounded-full bg-pastel-lavender/50 blur-3xl"
@@ -272,7 +259,7 @@ function SubscriptionPage() {
         isContinuing={isContinuing}
         onContinue={handleContinue}
       />
-    </div>
+    </ParentLayout>
   )
 }
 
