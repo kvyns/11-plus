@@ -1,36 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import {
-  BarChart3,
-  BookOpen,
-  CalendarDays,
-  ChevronLeft,
-  Clock3,
-  FileText,
-  GraduationCap,
-  Play,
-} from 'lucide-react'
+import { BarChart3, BookOpen, ChevronLeft, Play } from 'lucide-react'
 import { useAppStore } from '../store/appStore.jsx'
-
-const subjectArt = {
-  ENGLISH: '/english/english.png',
-  VERBAL: '/verbal/verbal.png',
-  MATHS: '/maths/maths.png',
-  NON_VERBAL: '/non-verbal/non_verbal.png',
-}
-
-// The API's mockStatus field doesn't reliably flip to "LIVE" once the window
-// opens (it's often still "UPCOMING") — the doc explicitly calls out that the
-// LIVE state has to be derived from startTime/endTime on the client.
-function isMockLive(mock) {
-  const statusIndicatesLive = ['LIVE', 'OPEN'].includes(String(mock.mockStatus || '').toUpperCase())
-  const startMs = mock.startTime ? new Date(mock.startTime).getTime() : null
-  const endMs = mock.endTime ? new Date(mock.endTime).getTime() : null
-  const withinWindow = startMs !== null && endMs !== null && !Number.isNaN(startMs) && !Number.isNaN(endMs)
-    ? Date.now() >= startMs && Date.now() <= endMs
-    : false
-  return statusIndicatesLive || withinWindow
-}
+import { isMockLive, formatDateRange } from '../lib/mockHelpers.js'
+import MockCard from '../components/mock/MockCard.jsx'
+import LeaderboardUnavailableModal from '../components/mock/LeaderboardUnavailableModal.jsx'
+import LeaderboardModal from '../components/mock/LeaderboardModal.jsx'
 
 function ChildMockTestsPage() {
   const navigate = useNavigate()
@@ -72,20 +47,6 @@ function ChildMockTestsPage() {
     loadMocks()
     return () => { isCancelled = true }
   }, [api.mock, selectedStatus])
-
-  const formatMockDate = (value) => {
-    if (!value) return null
-    const parsed = new Date(value)
-    if (Number.isNaN(parsed.getTime())) return value
-    return parsed.toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })
-  }
-
-  const formatDateRange = (start, end) => {
-    const startLabel = formatMockDate(start)
-    const endLabel = formatMockDate(end)
-    if (startLabel && endLabel) return `${startLabel} – ${endLabel}`
-    return startLabel || endLabel || null
-  }
 
   const toCardModel = (mock, index) => {
     const rawLevel = mock.yearGroup || mock.level
@@ -190,88 +151,62 @@ function ChildMockTestsPage() {
             {mockTests.map((rawMock, index) => {
               const test = toCardModel(rawMock, index)
               return (
-                <div
+                <MockCard
                   key={test.id}
-                  className="relative bg-white rounded-2xl p-6 shadow-card border border-amber-100/60 text-left"
-                >
-                  {test.live && !test.appeared && (
-                    <span className="absolute top-4 right-4 bg-green-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full tracking-wide">
-                      LIVE
-                    </span>
-                  )}
-
-                  <div className="flex gap-4 mb-4">
-                    <img
-                      src={subjectArt[test.subjects[0]]}
-                      alt={`${test.subjects[0]} subject`}
-                      className="h-16 w-16 shrink-0 rounded-xl object-cover border border-slate-100"
-                    />
-                    <div className="min-w-0">
-                      <h3 className="font-display text-lg font-bold text-slate-900 mb-1 truncate pr-14">{test.title}</h3>
+                  title={test.title}
+                  subjectKey={test.subjects[0]}
+                  live={test.live && !test.appeared}
+                  questions={test.questions}
+                  duration={test.duration}
+                  date={test.date}
+                  level={test.level}
+                  headerExtra={
+                    test.appeared ? (
+                      <p className="text-2xl font-bold text-indigo-600">
+                        {test.correct ?? 0}/{test.totalQuestions ?? test.questions}{' '}
+                        <span className="text-base font-semibold text-slate-500">({test.accuracy ?? 0}%)</span>
+                      </p>
+                    ) : (
+                      <div className="flex flex-wrap gap-1.5">
+                        {test.subjects.map((subject) => (
+                          <span key={subject} className="px-2.5 py-1 bg-indigo-50 text-indigo-600 rounded-full text-xs font-semibold flex items-center gap-1">
+                            <BookOpen className="h-3.5 w-3.5" />
+                            <span>{subject}</span>
+                          </span>
+                        ))}
+                      </div>
+                    )
+                  }
+                  actions={
+                    <>
                       {test.appeared ? (
-                        <p className="text-2xl font-bold text-indigo-600">
-                          {test.correct ?? 0}/{test.totalQuestions ?? test.questions} <span className="text-base font-semibold text-slate-500">({test.accuracy ?? 0}%)</span>
-                        </p>
+                        <button
+                          onClick={() => navigate(`/child-mocks/${test.mockID}/result`, { state: { mockDetails: test } })}
+                          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-full text-sm transition-colors shadow-btn flex items-center justify-center gap-2"
+                        >
+                          <BarChart3 className="h-4 w-4" />
+                          <span>View Result</span>
+                        </button>
                       ) : (
-                        <div className="flex flex-wrap gap-1.5">
-                          {test.subjects.map((subject) => (
-                            <span key={subject} className="px-2.5 py-1 bg-indigo-50 text-indigo-600 rounded-full text-xs font-semibold flex items-center gap-1">
-                              <BookOpen className="h-3.5 w-3.5" />
-                              <span>{subject}</span>
-                            </span>
-                          ))}
-                        </div>
+                        <button
+                          onClick={() => navigate(`/child-mocks/${test.mockID}`, { state: { mockDetails: test } })}
+                          disabled={!test.live}
+                          className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white font-bold py-3 rounded-full text-sm transition-colors shadow-btn flex items-center justify-center gap-2"
+                        >
+                          <Play className="h-4 w-4" />
+                          <span>{test.live ? 'Start Mock' : 'Not Open Yet'}</span>
+                        </button>
                       )}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-y-2 gap-x-3 text-sm text-slate-600 mb-4 pb-4 border-b border-slate-100">
-                    <div className="flex items-center gap-1.5">
-                      <FileText className="h-4 w-4 text-indigo-400 shrink-0" />
-                      {test.questions} Questions
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <Clock3 className="h-4 w-4 text-indigo-400 shrink-0" />
-                      {test.duration} Min
-                    </div>
-                    <div className="flex items-center gap-1.5 col-span-2">
-                      <CalendarDays className="h-4 w-4 text-indigo-400 shrink-0" />
-                      {test.date}
-                    </div>
-                    <div className="flex items-center gap-1.5 col-span-2">
-                      <GraduationCap className="h-4 w-4 text-indigo-400 shrink-0" />
-                      {test.level}
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-2.5">
-                    {test.appeared ? (
                       <button
-                        onClick={() => navigate(`/child-mocks/${test.mockID}/result`, { state: { mockDetails: test } })}
-                        className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-full text-sm transition-colors shadow-btn flex items-center justify-center gap-2"
+                        onClick={() => handleLeaderboardClick(test)}
+                        className="w-full bg-white hover:bg-indigo-50 text-indigo-600 font-bold py-3 rounded-full text-sm transition-colors border-2 border-indigo-200 hover:border-indigo-300 flex items-center justify-center gap-2"
                       >
                         <BarChart3 className="h-4 w-4" />
-                        <span>View Result</span>
+                        <span>Leaderboard</span>
                       </button>
-                    ) : (
-                      <button
-                        onClick={() => navigate(`/child-mocks/${test.mockID}`, { state: { mockDetails: test } })}
-                        disabled={!test.live}
-                        className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white font-bold py-3 rounded-full text-sm transition-colors shadow-btn flex items-center justify-center gap-2"
-                      >
-                        <Play className="h-4 w-4" />
-                        <span>{test.live ? 'Start Mock' : 'Not Open Yet'}</span>
-                      </button>
-                    )}
-                    <button
-                      onClick={() => handleLeaderboardClick(test)}
-                      className="w-full bg-white hover:bg-indigo-50 text-indigo-600 font-bold py-3 rounded-full text-sm transition-colors border-2 border-indigo-200 hover:border-indigo-300 flex items-center justify-center gap-2"
-                    >
-                      <BarChart3 className="h-4 w-4" />
-                      <span>Leaderboard</span>
-                    </button>
-                  </div>
-                </div>
+                    </>
+                  }
+                />
               )
             })}
           </div>
@@ -289,66 +224,11 @@ function ChildMockTestsPage() {
         )}
 
         {leaderboardData && (
-          <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl p-6 shadow-2xl border border-slate-100 max-w-sm w-full max-h-[80vh] overflow-y-auto">
-              <h3 className="font-display text-lg font-bold text-slate-900 mb-1">{leaderboardData.title}</h3>
-              <p className="text-sm text-slate-500 mb-4">Leaderboard</p>
-
-              {leaderboardData.myRank && (
-                <div className="rounded-xl bg-pastel-lavender p-3 mb-4 flex items-center justify-between">
-                  <span className="text-sm font-semibold text-pastel-lavender-ink">
-                    Your rank: #{leaderboardData.myRank.rank}
-                  </span>
-                  <span className="text-sm font-bold text-pastel-lavender-ink">
-                    {leaderboardData.myRank.correct}/{leaderboardData.myRank.totalQuestions}
-                  </span>
-                </div>
-              )}
-
-              <div className="space-y-2 mb-4">
-                {leaderboardData.top10.map((entry) => (
-                  <div key={entry.rank} className="flex items-center justify-between rounded-xl bg-slate-50 px-3 py-2">
-                    <div className="flex items-center gap-2">
-                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-xs font-bold text-slate-600 shadow-card">
-                        {entry.rank}
-                      </span>
-                      <span className="text-sm font-semibold text-slate-800">{entry.childName}</span>
-                    </div>
-                    <span className="text-sm font-bold text-indigo-600">{entry.score}%</span>
-                  </div>
-                ))}
-              </div>
-
-              <button
-                onClick={() => setLeaderboardData(null)}
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-full transition-colors shadow-btn"
-              >
-                Close
-              </button>
-            </div>
-          </div>
+          <LeaderboardModal data={leaderboardData} onClose={() => setLeaderboardData(null)} />
         )}
 
         {showLeaderboardUnavailable && (
-          <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl p-8 shadow-2xl border border-slate-100 text-center max-w-sm w-full">
-              <div className="flex justify-center mb-4">
-                <div className="rounded-full bg-pastel-lavender p-3">
-                  <BarChart3 className="h-7 w-7 text-pastel-lavender-ink" />
-                </div>
-              </div>
-              <h3 className="font-display text-xl font-bold text-slate-900 mb-2">Not available yet</h3>
-              <p className="text-slate-500 text-sm mb-6">
-                Leaderboard rankings are published after the mock test window closes.
-              </p>
-              <button
-                onClick={() => setShowLeaderboardUnavailable(false)}
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-full transition-colors shadow-btn"
-              >
-                OK
-              </button>
-            </div>
-          </div>
+          <LeaderboardUnavailableModal onClose={() => setShowLeaderboardUnavailable(false)} />
         )}
       </div>
     </div>
