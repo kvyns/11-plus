@@ -3,7 +3,7 @@ import { ExternalLink } from 'lucide-react'
 function SupportCard({ appVersion, onOpenPrivacy, onOpenTerms }) {
   return (
     <div className="bg-white rounded-[1.75rem] p-6 shadow-card-xl border border-amber-100/60">
-      <h3 className="font-display font-bold text-slate-900 mb-2">Support</h3>
+      <h3 className="font-display text-lg font-bold text-slate-900 mb-2">Support</h3>
       <div className="space-y-1">
         <button
           onClick={onOpenPrivacy}

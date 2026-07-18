@@ -130,3 +130,8 @@ export const notificationApi = {
 
 export const mediaBaseUrl = import.meta.env.VITE_MEDIA_BASE_URL || 'https://d1rbn1wov6bp1h.cloudfront.net'
 export const buildMediaUrl = (imageKey) => `${mediaBaseUrl}/${imageKey}`
+
+// Not present in .env.example until a real key is added — Stripe Elements
+// (loadStripe) simply won't initialize without it, and the paid-mock
+// checkout form shows a "not configured" state instead of erroring.
+export const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || ''

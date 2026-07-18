@@ -5,7 +5,7 @@ function DangerZoneCard({ isDeleting, onDelete }) {
     <div className="bg-red-50 rounded-2xl p-6 md:p-8 border-2 border-red-100">
       <div className="flex items-center gap-3 mb-1">
         <ShieldAlert className="h-5 w-5 text-red-500" />
-        <h3 className="font-display font-bold text-red-700">Danger Zone</h3>
+        <h3 className="font-display text-lg font-bold text-red-700">Danger Zone</h3>
       </div>
       <p className="text-sm text-red-600/80 mb-4">
         Deleting your account is permanent and cannot be undone.

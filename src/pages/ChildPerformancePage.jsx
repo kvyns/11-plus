@@ -1,36 +1,37 @@
 import { useEffect, useState } from 'react'
+import { useLocation, useParams } from 'react-router-dom'
 import { useAppStore } from '../store/appStore.jsx'
-import { useToast } from '../store/toastStore.jsx'
 import { Loader2 } from 'lucide-react'
-import ChildLayout from '../components/child/ChildLayout.jsx'
+import ParentLayout from '../components/dashboard/ParentLayout.jsx'
 import PerformanceStatsRow from '../components/performance/PerformanceStatsRow.jsx'
 import SubjectBreakdownGrid from '../components/performance/SubjectBreakdownGrid.jsx'
 
-function ChildProfilePage() {
-  const { api, user } = useAppStore()
-  const toast = useToast()
+function ChildPerformancePage() {
+  const { childID } = useParams()
+  const location = useLocation()
+  const { api } = useAppStore()
+  const childName = location.state?.childName || 'this child'
   const [performance, setPerformance] = useState(null)
   const [subjects, setSubjects] = useState([])
   const [isLoading, setIsLoading] = useState(true)
-  const [hasError, setHasError] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
     let isCancelled = false
 
     async function loadPerformance() {
       setIsLoading(true)
-      setHasError(false)
+      setErrorMessage('')
 
       try {
-        const response = await api.quiz.childPerformance({ childID: user?.childID })
+        const response = await api.quiz.childPerformance({ childID })
         if (!isCancelled) {
           setPerformance(response.performance || null)
           setSubjects(response.subjects || [])
         }
       } catch (error) {
         if (!isCancelled) {
-          setHasError(true)
-          toast.error(error.message || 'Unable to load progress right now.')
+          setErrorMessage(error.message || 'Unable to load performance right now.')
         }
       } finally {
         if (!isCancelled) setIsLoading(false)
@@ -39,15 +40,14 @@ function ChildProfilePage() {
 
     loadPerformance()
     return () => { isCancelled = true }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [api.quiz, user?.childID])
+  }, [api.quiz, childID])
 
   const totalPoints = performance?.totalPoints ?? performance?.total_points ?? 0
   const accuracy = performance?.accuracy ?? 0
   const completedQuizzes = performance?.completedQuizzes ?? performance?.completed_quizzes ?? 0
 
   return (
-    <ChildLayout title="My Progress" activePage="child-profile">
+    <ParentLayout title={`${childName}'s Performance`} activePage="dashboard">
       <div className="max-w-4xl mx-auto">
         {isLoading && (
           <div className="flex items-center justify-center py-24">
@@ -55,7 +55,13 @@ function ChildProfilePage() {
           </div>
         )}
 
-        {!isLoading && !hasError && (
+        {!isLoading && errorMessage && (
+          <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-600 text-center">
+            {errorMessage}
+          </div>
+        )}
+
+        {!isLoading && !errorMessage && (
           <>
             <PerformanceStatsRow
               totalPoints={totalPoints}
@@ -66,13 +72,13 @@ function ChildProfilePage() {
             <h2 className="font-display text-xl font-bold text-slate-900 mb-4">By Subject</h2>
             <SubjectBreakdownGrid
               subjects={subjects}
-              emptyMessage="No quizzes attempted yet — start practicing to see your progress here."
+              emptyMessage={`${childName} hasn't attempted any quizzes yet.`}
             />
           </>
         )}
       </div>
-    </ChildLayout>
+    </ParentLayout>
   )
 }
 
-export default ChildProfilePage
+export default ChildPerformancePage

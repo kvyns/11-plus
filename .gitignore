@@ -27,3 +27,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Reference-only material not needed to build/run the app
+Assets/
+app/
+api/

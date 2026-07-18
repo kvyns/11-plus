@@ -30,6 +30,14 @@ export function formatMockDate(value) {
   })
 }
 
+// Single source of truth for "is this mock free" — was previously computed
+// three slightly different ways across MockTestsPage/ChildMockTestsPage/
+// MockRegisterPage (test.free, isMockFree boolean, price===0 checks).
+export function isMockFree(mock) {
+  const amount = mock.price ?? mock.amount
+  return mock.priceType === 'FREE' || Boolean(mock.free) || amount === 0 || amount === '0'
+}
+
 export function formatDateRange(start, end) {
   const startLabel = formatMockDate(start)
   const endLabel = formatMockDate(end)

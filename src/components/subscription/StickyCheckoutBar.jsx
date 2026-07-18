@@ -31,6 +31,8 @@ function StickyCheckoutBar({ selectedPlan, billingCycle, selected, selectedChild
             ? 'Processing...'
             : selected && childrenCount > 0 && selectedChildIds.length === 0
             ? 'Select a child'
+            : selected && selectedChildIds.length > 0
+            ? 'Subscribe'
             : 'Continue'}
         </button>
       </div>

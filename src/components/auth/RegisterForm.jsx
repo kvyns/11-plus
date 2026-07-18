@@ -138,7 +138,7 @@ function RegisterForm({
         </SubmitButton>
       </form>
 
-      <div className="text-center text-slate-600 mt-6">
+      <div className="text-center text-sm text-slate-600 mt-6">
         Already have an account?{' '}
         <button onClick={onSignIn} className="text-indigo-600 font-semibold hover:underline">
           Sign In

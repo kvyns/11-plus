@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
+import { BarChart3, BookOpen, Play } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { BarChart3, BookOpen, ChevronLeft, Play } from 'lucide-react'
 import { useAppStore } from '../store/appStore.jsx'
+import { useToast } from '../store/toastStore.jsx'
 import { isMockLive, formatDateRange } from '../lib/mockHelpers.js'
+import ChildLayout from '../components/child/ChildLayout.jsx'
 import MockCard from '../components/mock/MockCard.jsx'
 import LeaderboardUnavailableModal from '../components/mock/LeaderboardUnavailableModal.jsx'
 import LeaderboardModal from '../components/mock/LeaderboardModal.jsx'
@@ -10,10 +12,10 @@ import LeaderboardModal from '../components/mock/LeaderboardModal.jsx'
 function ChildMockTestsPage() {
   const navigate = useNavigate()
   const { api } = useAppStore()
+  const toast = useToast()
   const [activeTab, setActiveTab] = useState('upcoming')
   const [mockTests, setMockTests] = useState([])
   const [isLoading, setIsLoading] = useState(false)
-  const [errorMessage, setErrorMessage] = useState('')
   const [showLeaderboardUnavailable, setShowLeaderboardUnavailable] = useState(false)
   const [leaderboardData, setLeaderboardData] = useState(null)
 
@@ -24,7 +26,6 @@ function ChildMockTestsPage() {
 
     async function loadMocks() {
       setIsLoading(true)
-      setErrorMessage('')
 
       try {
         const response = await api.mock.listMocks(selectedStatus)
@@ -34,8 +35,8 @@ function ChildMockTestsPage() {
         }
       } catch (error) {
         if (!isCancelled) {
-          setErrorMessage(error.message || 'Unable to load mock tests right now.')
           setMockTests([])
+          toast.error(error.message || 'Unable to load mock tests right now.')
         }
       } finally {
         if (!isCancelled) {
@@ -46,6 +47,7 @@ function ChildMockTestsPage() {
 
     loadMocks()
     return () => { isCancelled = true }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [api.mock, selectedStatus])
 
   const toCardModel = (mock, index) => {
@@ -91,30 +93,12 @@ function ChildMockTestsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-cream">
-      {/* Header */}
-      <div className="bg-cream/90 backdrop-blur-md border-b border-amber-100 py-4 px-6 flex items-center justify-between sticky top-0 z-30">
-        <button
-          onClick={() => navigate('/child-dashboard')}
-          className="h-10 w-10 rounded-full flex items-center justify-center text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
-        >
-          <ChevronLeft className="h-6 w-6" />
-        </button>
-        <h1 className="font-display text-xl font-bold text-slate-900">Mock Tests</h1>
-        <div className="w-10" />
-      </div>
-
-      <div className="max-w-5xl mx-auto px-4 py-6 md:px-6 md:py-8">
+    <ChildLayout title="Mock Tests" activePage="child-mocks">
+      <div className="max-w-5xl mx-auto">
         <div className="bg-white rounded-2xl p-6 md:p-8 shadow-card border border-amber-100/60 mb-6">
           <p className="text-slate-600 text-center mb-6">
             Take on a mock test and see how you rank against everyone else.
           </p>
-
-          {errorMessage && (
-            <p className="mb-4 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-600">
-              {errorMessage}
-            </p>
-          )}
 
           <div className="flex justify-center">
             <div className="inline-flex bg-slate-100 rounded-full p-1">
@@ -132,7 +116,7 @@ function ChildMockTestsPage() {
                   activeTab === 'appeared' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                Appeared
+                Completed
               </button>
             </div>
           </div>
@@ -217,7 +201,7 @@ function ChildMockTestsPage() {
             <img src="/no-mocks.png" alt="No mock tests" className="w-full rounded-2xl border border-amber-100/60 mb-4" />
             <p className="text-slate-500 text-sm">
               {activeTab === 'appeared'
-                ? "You haven't attempted any mocks yet."
+                ? "You haven't completed any mocks yet."
                 : 'No upcoming mocks right now — check back soon.'}
             </p>
           </div>
@@ -231,7 +215,7 @@ function ChildMockTestsPage() {
           <LeaderboardUnavailableModal onClose={() => setShowLeaderboardUnavailable(false)} />
         )}
       </div>
-    </div>
+    </ChildLayout>
   )
 }
 

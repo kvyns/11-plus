@@ -1,3 +1,4 @@
 export function childName(child, i) {
-  return child.firstName || child.name || child.username || `Child ${i + 1}`
+  const fullName = [child.firstName, child.lastName].filter(Boolean).join(' ')
+  return fullName || child.name || child.username || `Child ${i + 1}`
 }

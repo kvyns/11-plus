@@ -7,7 +7,7 @@ function ReferralCard({ referralCode, copied, onCopy }) {
         <div className="rounded-full bg-pastel-mint p-2">
           <Gift className="h-4 w-4 text-pastel-mint-ink" />
         </div>
-        <h3 className="font-display font-bold text-slate-900">Refer a friend</h3>
+        <h3 className="font-display text-lg font-bold text-slate-900">Refer a friend</h3>
       </div>
       <div className="relative">
         <input

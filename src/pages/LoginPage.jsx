@@ -57,10 +57,10 @@ function LoginPage() {
       </div>
 
       <div className="mb-8 text-center lg:text-left">
-        <h1 className="font-display text-3xl font-bold text-slate-900 mb-1">
+        <h1 className="font-display text-2xl font-bold text-slate-900 mb-1 lg:text-3xl">
           Welcome Back
         </h1>
-        <p className="text-slate-500">
+        <p className="text-sm text-slate-500">
           Sign in to continue your 11+ preparation
         </p>
       </div>
@@ -116,7 +116,7 @@ function LoginPage() {
         </form>
 
         {/* Register Link */}
-        <div className="text-center text-slate-600 mt-6">
+        <div className="text-center text-sm text-slate-600 mt-6">
           Don't have an account?{' '}
           <button
             onClick={() => navigate('/register')}

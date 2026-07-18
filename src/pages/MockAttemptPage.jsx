@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { Bookmark, CheckCircle2, ChevronLeft, ChevronRight, Clock3, Hourglass, Loader2, Send, XCircle } from 'lucide-react'
 import { useAppStore } from '../store/appStore.jsx'
+import { useToast } from '../store/toastStore.jsx'
 import {
   resolveQuestions, flattenQuestions, formatSeconds, getQuestionOptions,
   STATUS_STYLES, getQuestionStatus, REVIEW_STATUS_STYLES, getReviewStatus,
@@ -14,6 +15,9 @@ import StatsSidebar from '../components/mock/StatsSidebar.jsx'
 import ResultCard from '../components/mock/ResultCard.jsx'
 import ReviewQuestionCard from '../components/mock/ReviewQuestionCard.jsx'
 import SubmitConfirmModal from '../components/mock/SubmitConfirmModal.jsx'
+import LeaderboardModal from '../components/mock/LeaderboardModal.jsx'
+import LeaderboardUnavailableModal from '../components/mock/LeaderboardUnavailableModal.jsx'
+import ConfirmDialog from '../components/ui/ConfirmDialog.jsx'
 
 function MockAttemptPage() {
   const { mockID } = useParams()
@@ -21,6 +25,7 @@ function MockAttemptPage() {
   const isResultMode = location.pathname.endsWith('/result')
   const navigate = useNavigate()
   const { api, user } = useAppStore()
+  const toast = useToast()
   // Passed from the mocks list so the title/subjects/duration are available
   // immediately on the landing screen, before startMock has even run (the
   // API's own start/result responses don't include this metadata).
@@ -29,7 +34,6 @@ function MockAttemptPage() {
 
   // 'landing' -> 'loading' -> 'taking' -> 'submitting' -> 'result' -> 'review'
   const [stage, setStage] = useState(isResultMode ? 'loading' : 'landing')
-  const [errorMessage, setErrorMessage] = useState('')
   const [mockMeta, setMockMeta] = useState(null)
   const [questions, setQuestions] = useState([])
   const [answers, setAnswers] = useState({})
@@ -43,6 +47,9 @@ function MockAttemptPage() {
   const [reviewIndex, setReviewIndex] = useState(0)
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false)
   const [savedToastVisible, setSavedToastVisible] = useState(false)
+  const [leaderboardData, setLeaderboardData] = useState(null)
+  const [showLeaderboardUnavailable, setShowLeaderboardUnavailable] = useState(false)
+  const [showExitConfirm, setShowExitConfirm] = useState(false)
 
   const flatQuestions = useMemo(() => flattenQuestions(questions), [questions])
   const current = flatQuestions[currentIndex]
@@ -118,13 +125,13 @@ function MockAttemptPage() {
       try {
         const response = await api.mock.mockResult({ childID: user?.childID, mockID })
         if (!isCancelled) {
-          setResult(response.mockResult || null)
+          setResult(response.mockResult || response.result || response.data || null)
           setMockMeta({ mockID })
           setStage('result')
         }
       } catch (error) {
         if (!isCancelled) {
-          setErrorMessage(error.message || 'Unable to load this result right now.')
+          toast.error(error.message || 'Unable to load this result right now.')
           setStage('result')
         }
       }
@@ -137,7 +144,6 @@ function MockAttemptPage() {
 
   const handleStart = async () => {
     setStage('loading')
-    setErrorMessage('')
 
     try {
       const response = await api.mock.startMock({ childID: user?.childID, mockID })
@@ -149,7 +155,7 @@ function MockAttemptPage() {
       setStartedAt(Date.now())
       setStage('taking')
     } catch (error) {
-      setErrorMessage(error.message || 'Unable to start this mock right now.')
+      toast.error(error.message || 'Unable to start this mock right now.')
       setStage('landing')
     }
   }
@@ -188,41 +194,111 @@ function MockAttemptPage() {
     if (stage === 'submitting') return
     setShowSubmitConfirm(false)
     setStage('submitting')
-    setErrorMessage('')
 
     const timeTaken = mockMeta ? mockMeta.durationMins * 60 - secondsLeft : 0
+
+    const submitAnswers = flatQuestions.map((q) => ({
+      questionID: q.id,
+      childAnswers: answers[q.id] ? [answers[q.id]] : [],
+    }))
+
+    // Diagnostic only: if two flat questions share the same id (e.g. a
+    // comprehension passage's sub-questions colliding with another
+    // question), the submit payload ends up with duplicate questionID
+    // entries. The backend can then only grade one of each duplicate pair,
+    // and silently scores the other occurrence as skipped even though the
+    // child answered it on screen — this would explain "submitted but a
+    // few came back as skipped" without any local answer actually missing.
+    const idCounts = {}
+    flatQuestions.forEach((q) => { idCounts[q.id] = (idCounts[q.id] || 0) + 1 })
+    const duplicateIds = Object.entries(idCounts).filter(([, count]) => count > 1)
+    if (duplicateIds.length > 0) {
+      // eslint-disable-next-line no-console
+      console.warn('[MockAttemptPage] duplicate question ids in this mock — submit payload will collapse these:', duplicateIds)
+    }
 
     try {
       const response = await api.mock.submitMock({
         mockID: mockMeta?.mockID || mockID,
         childID: user?.childID,
         timeTaken,
-        answers: flatQuestions.map((q) => ({
-          questionID: q.id,
-          childAnswers: answers[q.id] ? [answers[q.id]] : [],
-        })),
+        answers: submitAnswers,
       })
-      setResult(response.result || null)
+      setResult(response.result || response.mockResult || response.data || null)
       setStage('result')
+      toast.success('Mock submitted! Here are your results.')
     } catch (error) {
-      setErrorMessage(error.message || 'Unable to submit this mock right now.')
+      toast.error(error.message || 'Unable to submit this mock right now.')
       setStage('taking')
     }
   }
 
   const loadReview = async () => {
     setStage('loading')
-    setErrorMessage('')
 
     try {
       const response = await api.mock.reviewMock({ childID: user?.childID, mockID: mockMeta?.mockID || mockID })
-      setReviewReport(response.mockReport || null)
+      const report = response.mockReport || response.result || response.data || null
+      const rawQuestions = report?.questions || report?.answers || []
+
+      // Attempted this mock in the current session? Its full content (question
+      // text/options) is already resolved in local `questions` state from
+      // handleStart — merge it in first so we don't re-hit the network for
+      // data we already have. Anything still missing (e.g. a review opened
+      // via a direct link, with no local `questions` state) falls through to
+      // resolveQuestions(), the same S3-key resolver used when starting a mock.
+      const alreadyResolved = new Map(flattenQuestions(questions).map((q) => [q.id, q]))
+      const merged = rawQuestions.map((q) => {
+        const known = alreadyResolved.get(q.id)
+        if (!known) return q
+        // Only backfill fields the review item is missing — never let a
+        // null/undefined field from the review response clobber content
+        // we already resolved during the exam.
+        const filled = { ...q }
+        Object.entries(known).forEach(([key, value]) => {
+          if (filled[key] == null && value != null) filled[key] = value
+        })
+        return filled
+      })
+      const resolved = await resolveQuestions(merged, api)
+
+      setReviewReport(report ? { ...report, questions: resolved } : null)
       setReviewIndex(0)
       setStage('review')
     } catch (error) {
-      setErrorMessage(error.message || 'Unable to load the review right now.')
+      toast.error(error.message || 'Unable to load the review right now.')
       setStage('result')
     }
+  }
+
+  const handleViewLeaderboard = async () => {
+    try {
+      const response = await api.mock.mockLeaderboard({ mockID: mockMeta?.mockID || mockID })
+      setLeaderboardData({
+        title: mockTitle,
+        top10: response.top10 || [],
+        myRank: response.myRank || null,
+      })
+    } catch {
+      setShowLeaderboardUnavailable(true)
+    }
+  }
+
+  // Submitting an exam already has its own confirm modal; leaving mid-exam
+  // (or mid-review) via the header back arrow had none — an unguarded exit
+  // right next to a guarded one. Landing/result stages have nothing to lose,
+  // so only guard the two stages where progress/timer state is live.
+  const handleBackClick = () => {
+    if (stage === 'taking' || stage === 'review') {
+      setShowExitConfirm(true)
+      return
+    }
+    navigate('/child-mocks')
+  }
+
+  const confirmExit = () => {
+    setShowExitConfirm(false)
+    navigate('/child-mocks')
   }
 
   const answeredCount = Object.keys(answers).length
@@ -252,7 +328,7 @@ function MockAttemptPage() {
     <div className="min-h-screen bg-cream">
       <div className="bg-cream/90 backdrop-blur-md border-b border-amber-100 py-3 px-4 sm:px-6 flex items-center justify-between gap-3 sticky top-0 z-30">
         <button
-          onClick={() => navigate('/child-mocks')}
+          onClick={handleBackClick}
           className="h-10 w-10 shrink-0 rounded-full flex items-center justify-center text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
           aria-label="Back to mocks"
         >
@@ -276,13 +352,7 @@ function MockAttemptPage() {
         )}
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-6 sm:py-8">
-        {errorMessage && (
-          <p className="mb-6 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-600">
-            {errorMessage}
-          </p>
-        )}
-
+      <div className={`max-w-7xl mx-auto px-4 py-6 sm:py-8 ${stage === 'taking' || stage === 'review' ? 'pb-28 sm:pb-24' : ''}`}>
         {(stage === 'loading' || stage === 'submitting') && (
           <div className="flex flex-col items-center justify-center py-24 gap-3">
             <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
@@ -291,7 +361,7 @@ function MockAttemptPage() {
         )}
 
         {stage === 'landing' && (
-          <MockLandingCard mockTitle={mockTitle} mockDetails={mockDetails} onStart={handleStart} />
+          <MockLandingCard mockTitle={mockTitle} onStart={handleStart} />
         )}
 
         {stage === 'taking' && current && (
@@ -362,6 +432,7 @@ function MockAttemptPage() {
             mockMeta={mockMeta}
             totalQuestions={flatQuestions.length}
             onReviewAnswers={loadReview}
+            onViewLeaderboard={handleViewLeaderboard}
             onBackToMocks={() => navigate('/child-mocks')}
           />
         )}
@@ -389,8 +460,8 @@ function MockAttemptPage() {
 
               <ReviewQuestionCard reviewCurrent={reviewCurrent} reviewIndex={reviewIndex} />
 
-              {/* Nav */}
-              <div className="mt-5 flex items-center justify-between gap-3">
+              {/* Nav — fixed to the viewport so it never shifts as question content changes height */}
+              <div className="fixed inset-x-0 bottom-0 z-20 flex items-center justify-between gap-3 bg-cream/95 backdrop-blur-md shadow-card-lg border-t border-amber-100/60 px-4 py-3 sm:px-6">
                 <button
                   onClick={() => setReviewIndex((i) => Math.max(0, i - 1))}
                   disabled={reviewIndex === 0}
@@ -435,6 +506,29 @@ function MockAttemptPage() {
           onCancel={() => setShowSubmitConfirm(false)}
         />
       )}
+
+      {leaderboardData && (
+        <LeaderboardModal data={leaderboardData} onClose={() => setLeaderboardData(null)} />
+      )}
+
+      {showLeaderboardUnavailable && (
+        <LeaderboardUnavailableModal onClose={() => setShowLeaderboardUnavailable(false)} />
+      )}
+
+      <ConfirmDialog
+        open={showExitConfirm}
+        icon={ChevronLeft}
+        title="Leave this mock?"
+        message={
+          stage === 'taking'
+            ? "The timer keeps running until time's up — leaving now won't pause it, and you'll return to a shorter clock."
+            : "You'll need to reopen the review to see it again."
+        }
+        confirmLabel="Leave"
+        destructive
+        onConfirm={confirmExit}
+        onCancel={() => setShowExitConfirm(false)}
+      />
     </div>
   )
 }

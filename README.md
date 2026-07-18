@@ -1,16 +1,33 @@
-# React + Vite
+# 11+ eLearning
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Exam-prep web app for the UK 11+ — English, Maths, Verbal and Non-Verbal Reasoning. Parents manage children, subscriptions, and mock test registrations; children take timed mock tests and track their progress.
 
-Currently, two official plugins are available:
+![Landing page](docs/screenshots/landing.png)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
 
-## React Compiler
+- **Parent dashboard** — manage multiple children, view accuracy and progress at a glance
+- **Subscriptions & mock test purchases** — plan-based access with Stripe checkout
+- **Timed mock tests** — exam-style attempts with question palette, review, leaderboards
+- **Child portal** — its own login, dashboard, and progress view per child
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Parent Dashboard | Mock Tests |
+|---|---|
+| ![Parent dashboard](docs/screenshots/dashboard.png) | ![Mock tests](docs/screenshots/mock-tests.png) |
 
-## Expanding the Oxlint configuration
+## Tech stack
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+React 19 · Vite · Tailwind CSS v4 · React Router · Framer Motion · Stripe
+
+## Getting started
+
+```bash
+npm install
+cp .env.example .env   # fill in API base URLs, Stripe key, Google Maps key
+npm run dev
+```
+
+```bash
+npm run build   # production build → dist/
+npm run lint    # oxlint
+```

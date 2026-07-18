@@ -18,7 +18,7 @@ function PasswordSection({
             <KeyRound className="h-4 w-4 text-pastel-lavender-ink" />
           </div>
           <div>
-            <h3 className="font-display font-bold text-slate-900">Password</h3>
+            <h3 className="font-display text-lg font-bold text-slate-900">Password</h3>
             <p className="text-sm text-slate-500">**********</p>
           </div>
         </div>

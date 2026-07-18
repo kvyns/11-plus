@@ -1,16 +1,34 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { BarChart3, BookOpen, GraduationCap, ShoppingCart } from 'lucide-react'
+import { useNavigate, Link } from 'react-router-dom'
+import { BarChart3, BookOpen, CheckCircle2, GraduationCap, ShoppingCart, User } from 'lucide-react'
 import { useAppStore } from '../store/appStore.jsx'
-import { isMockLive, formatDateRange } from '../lib/mockHelpers.js'
+import { isMockLive, isMockFree, formatDateRange } from '../lib/mockHelpers.js'
+import { childName } from '../lib/childHelpers.js'
 import MockCard from '../components/mock/MockCard.jsx'
 import LeaderboardUnavailableModal from '../components/mock/LeaderboardUnavailableModal.jsx'
 import ParentLayout from '../components/dashboard/ParentLayout.jsx'
+
+// The Purchased tab wants the opposite of dedup — one card per (mock, child)
+// pair, since each child has their own leaderboard/attempt for the mock.
+function expandPurchasedRows(mocks) {
+  const rows = []
+  mocks.forEach((mock) => {
+    const ids = mock.childIDs || (mock.childID ? [mock.childID] : [])
+    if (ids.length === 0) {
+      rows.push({ ...mock, childID: null })
+      return
+    }
+    ids.forEach((childID) => rows.push({ ...mock, childID }))
+  })
+  return rows
+}
 
 // For a parent token, /mocks?status=purchased returns one row PER CHILD who
 // purchased the mock — so the same mockID repeats once for every child it
 // was bought for. Collapse those rows into a single card and remember which
 // childIDs are already covered, instead of showing the same mock N times.
+// (Used for the Upcoming tab, where a mock is shown once regardless of who
+// it's already registered for — see expandPurchasedRows above for Purchased.)
 function dedupeMocksByChildren(mocks) {
   const byId = new Map()
 
@@ -42,8 +60,39 @@ function MockTestsPage() {
   const [mockTests, setMockTests] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const [children, setChildren] = useState([])
+  const [childFilter, setChildFilter] = useState('all')
 
   const selectedStatus = useMemo(() => (activeTab === 'purchased' ? 'purchased' : 'upcoming'), [activeTab])
+  const hasAnyPlan = children.some((child) => child.activeSubscription || child.plan)
+
+  // Also doubles as the child-name lookup for the Purchased tab (each row
+  // there only carries a childID, not a name) and the child filter pills.
+  useEffect(() => {
+    let isCancelled = false
+
+    async function loadChildren() {
+      try {
+        const response = await api.quiz.parentDashboard()
+        const list = response.children || response.result?.children || response.data?.children || []
+        if (!isCancelled) setChildren(list)
+      } catch {
+        if (!isCancelled) setChildren([])
+      }
+    }
+
+    loadChildren()
+    return () => { isCancelled = true }
+  }, [api.quiz])
+
+  useEffect(() => {
+    setChildFilter('all')
+  }, [activeTab])
+
+  const childNameById = (id) => {
+    const index = children.findIndex((c) => (c.childID || c.id) === id)
+    return index === -1 ? 'Unknown child' : childName(children[index], index)
+  }
 
   useEffect(() => {
     let isCancelled = false
@@ -56,7 +105,7 @@ function MockTestsPage() {
         const response = await api.mock.listMocks(selectedStatus)
         const mocks = response.mocks || response.result?.mocks || response.data?.mocks || []
         if (!isCancelled) {
-          setMockTests(dedupeMocksByChildren(mocks))
+          setMockTests(selectedStatus === 'purchased' ? expandPurchasedRows(mocks) : dedupeMocksByChildren(mocks))
         }
       } catch (error) {
         if (!isCancelled) {
@@ -79,7 +128,10 @@ function MockTestsPage() {
 
   const handleLeaderboardClick = async (test) => {
     try {
-      await api.mock.mockLeaderboard({ mockID: test.mockID || test.id })
+      // childID included defensively — leaderboard/rank is inherently a
+      // per-child thing once a mock has been bought for more than one
+      // child, even though the documented request shape only lists mockID.
+      await api.mock.mockLeaderboard({ mockID: test.mockID || test.id, childID: test.childID || undefined })
     } catch {
       setShowLeaderboardUnavailable(true)
     }
@@ -104,10 +156,7 @@ function MockTestsPage() {
         ? `Year ${rawLevel}`
         : rawLevel
 
-    const amount = mock.price ?? mock.amount
-    // If the price is explicitly 0, the mock is free for everyone regardless
-    // of what priceType says.
-    const isFree = mock.priceType === 'FREE' || mock.free || amount === 0 || amount === '0'
+    const isFree = isMockFree(mock)
 
     return {
       id: mock.mockID || mock.purchaseID || mock.id || index + 1,
@@ -127,9 +176,24 @@ function MockTestsPage() {
     }
   }
 
+  const toCardModelPurchased = (mock, index) => ({
+    ...toCardModel(mock, index),
+    childID: mock.childID || null,
+    childDisplayName: mock.childID ? childNameById(mock.childID) : null,
+  })
+
   const registerForMock = (test) => {
     navigate(`/mock-tests/${test.mockID || test.id}/register`, { state: { mockDetails: test } })
   }
+
+  const isPurchasedTab = activeTab === 'purchased'
+  const purchasedChildIds = isPurchasedTab
+    ? [...new Set(mockTests.map((m) => m.childID).filter(Boolean))]
+    : []
+  const visibleMockTests =
+    isPurchasedTab && childFilter !== 'all'
+      ? mockTests.filter((m) => m.childID === childFilter)
+      : mockTests
 
   return (
     <ParentLayout title="Mock Tests" activePage="mock-tests">
@@ -172,6 +236,31 @@ function MockTestsPage() {
               </button>
             </div>
           </div>
+
+          {isPurchasedTab && purchasedChildIds.length > 1 && (
+            <div className="flex flex-wrap justify-center gap-2 mt-4">
+              <button
+                onClick={() => setChildFilter('all')}
+                className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                  childFilter === 'all' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                All children
+              </button>
+              {purchasedChildIds.map((id) => (
+                <button
+                  key={id}
+                  onClick={() => setChildFilter(id)}
+                  className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                    childFilter === id ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
+                >
+                  <User className="h-3 w-3" />
+                  {childNameById(id)}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Mock Test Grid */}
@@ -183,13 +272,13 @@ function MockTestsPage() {
           </div>
         )}
 
-        {!isLoading && mockTests.length > 0 && (
+        {!isLoading && visibleMockTests.length > 0 && (
           <div className="grid sm:grid-cols-2 gap-5">
-            {mockTests.map((rawMock, index) => {
-              const test = toCardModel(rawMock, index)
+            {visibleMockTests.map((rawMock, index) => {
+              const test = isPurchasedTab ? toCardModelPurchased(rawMock, index) : toCardModel(rawMock, index)
               return (
                 <MockCard
-                  key={test.id}
+                  key={isPurchasedTab ? `${test.id}-${test.childID}` : test.id}
                   title={test.title}
                   subjectKey={test.subjects[0]}
                   live={test.live}
@@ -197,10 +286,22 @@ function MockTestsPage() {
                   duration={test.duration}
                   date={test.date}
                   headerExtra={
-                    <>
-                      <p className="text-2xl font-bold text-indigo-600">{test.price}</p>
-                      {test.free && <p className="text-xs text-slate-500">Free for Subscribers</p>}
-                    </>
+                    isPurchasedTab ? (
+                      <p className="flex items-center gap-1.5 text-sm font-semibold text-indigo-600">
+                        <User className="h-4 w-4" />
+                        {test.childDisplayName || 'Registered'}
+                      </p>
+                    ) : (
+                      <>
+                        <p className="text-2xl font-bold text-indigo-600">{test.price}</p>
+                        {test.free && <p className="text-xs text-slate-500">Free for Subscribers</p>}
+                        {!test.free && !hasAnyPlan && (
+                          <Link to="/subscription" className="text-xs text-indigo-600 font-semibold hover:underline">
+                            Have a plan? Check subscription
+                          </Link>
+                        )}
+                      </>
+                    )
                   }
                   tagsRow={
                     <>
@@ -217,6 +318,12 @@ function MockTestsPage() {
                         <GraduationCap className="h-3.5 w-3.5" />
                         <span>{test.level}</span>
                       </span>
+                      {isPurchasedTab && (
+                        <span className="px-2.5 py-1 bg-emerald-50 text-emerald-600 rounded-full text-xs font-semibold flex items-center gap-1">
+                          <CheckCircle2 className="h-3.5 w-3.5" />
+                          <span>Registered</span>
+                        </span>
+                      )}
                     </>
                   }
                   footnote={
@@ -232,30 +339,34 @@ function MockTestsPage() {
                     </>
                   }
                   actions={
-                    <>
-                      <button
-                        onClick={() => registerForMock(test)}
-                        className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-full text-sm transition-colors shadow-btn flex items-center justify-center gap-2"
-                      >
-                        <ShoppingCart className="h-4 w-4" />
-                        <span>
-                          {test.free
-                            ? 'Register Free'
-                            : test.registeredChildIds.length > 0
-                            ? 'Register'
-                            : test.live
-                            ? 'Pay & Register'
-                            : 'Register'}
-                        </span>
-                      </button>
+                    isPurchasedTab ? (
                       <button
                         onClick={() => handleLeaderboardClick(test)}
                         className="w-full bg-white hover:bg-indigo-50 text-indigo-600 font-bold py-3 rounded-full text-sm transition-colors border-2 border-indigo-200 hover:border-indigo-300 flex items-center justify-center gap-2"
                       >
                         <BarChart3 className="h-4 w-4" />
-                        <span>Leaderboard</span>
+                        <span>{test.childDisplayName ? `${test.childDisplayName}'s Leaderboard` : 'Leaderboard'}</span>
                       </button>
-                    </>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => registerForMock(test)}
+                          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-full text-sm transition-colors shadow-btn flex items-center justify-center gap-2"
+                        >
+                          <ShoppingCart className="h-4 w-4" />
+                          <span>
+                            {test.free ? 'Register (Free)' : `Register — ${test.price}`}
+                          </span>
+                        </button>
+                        <button
+                          onClick={() => handleLeaderboardClick(test)}
+                          className="w-full bg-white hover:bg-indigo-50 text-indigo-600 font-bold py-3 rounded-full text-sm transition-colors border-2 border-indigo-200 hover:border-indigo-300 flex items-center justify-center gap-2"
+                        >
+                          <BarChart3 className="h-4 w-4" />
+                          <span>Leaderboard</span>
+                        </button>
+                      </>
+                    )
                   }
                 />
               )
@@ -263,7 +374,7 @@ function MockTestsPage() {
           </div>
         )}
 
-        {!isLoading && mockTests.length === 0 && (
+        {!isLoading && visibleMockTests.length === 0 && (
           <div className="text-center">
             <img
               src="/no-mocks.png"
@@ -271,7 +382,7 @@ function MockTestsPage() {
               className="w-full rounded-2xl border border-amber-100/60 shadow-card mb-4"
             />
             <p className="text-slate-500 text-sm">
-              {activeTab === 'purchased'
+              {isPurchasedTab
                 ? "You haven't purchased any mocks yet."
                 : 'No upcoming mocks right now — check back soon.'}
             </p>

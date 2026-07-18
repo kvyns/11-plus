@@ -39,7 +39,7 @@ function ChildLoginPage() {
           <img src="/11plus.png" alt="11+ Logo" className="h-20 w-20" />
         </div>
         <h1 className="font-display text-2xl font-bold text-slate-900">Child Login</h1>
-        <p className="text-slate-500 mt-2">Sign in to your child's account</p>
+        <p className="text-sm text-slate-500 mt-2">Sign in to your child's account</p>
       </div>
 
       {/* Form */}
@@ -83,7 +83,7 @@ function ChildLoginPage() {
             Login as Child
           </SubmitButton>
         </form>
-        <div className="text-center mt-6">
+        <div className="text-center text-sm mt-6">
           <button
             onClick={() => navigate('/login')}
             className="text-indigo-600 font-semibold hover:underline"

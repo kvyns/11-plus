@@ -27,7 +27,7 @@ function ReferralForm({
         placeholder="Referral code"
         value={referral}
         onChange={(e) => setReferral(e.target.value.toUpperCase())}
-        className="font-semibold text-lg"
+        className="font-semibold"
         required
       />
 

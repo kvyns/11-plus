@@ -41,7 +41,7 @@ function PersonalDetailsCard({ currentUser, profileForm, setProfileForm, isEditi
         {/* Name row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="flex items-center gap-2 text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+            <label className="flex items-center gap-2 text-sm font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
               <User className="h-3.5 w-3.5 text-indigo-500" />
               First Name
             </label>
@@ -52,11 +52,11 @@ function PersonalDetailsCard({ currentUser, profileForm, setProfileForm, isEditi
                 className="w-full rounded-lg border-2 border-slate-200 focus:border-indigo-500 focus:outline-none px-3 py-2.5 text-sm bg-white transition-colors"
               />
             ) : (
-              <p className="font-semibold text-slate-900 px-3 py-2.5">{currentUser.firstName}</p>
+              <p className="text-sm font-semibold text-slate-900 px-3 py-2.5">{currentUser.firstName}</p>
             )}
           </div>
           <div>
-            <label className="flex items-center gap-2 text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+            <label className="flex items-center gap-2 text-sm font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
               <User className="h-3.5 w-3.5 text-indigo-500" />
               Last Name
             </label>
@@ -67,19 +67,19 @@ function PersonalDetailsCard({ currentUser, profileForm, setProfileForm, isEditi
                 className="w-full rounded-lg border-2 border-slate-200 focus:border-indigo-500 focus:outline-none px-3 py-2.5 text-sm bg-white transition-colors"
               />
             ) : (
-              <p className="font-semibold text-slate-900 px-3 py-2.5">{currentUser.lastName}</p>
+              <p className="text-sm font-semibold text-slate-900 px-3 py-2.5">{currentUser.lastName}</p>
             )}
           </div>
         </div>
 
         {/* Email (read-only) */}
         <div>
-          <label className="flex items-center gap-2 text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+          <label className="flex items-center gap-2 text-sm font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
             <Mail className="h-3.5 w-3.5 text-indigo-500" />
             Email
           </label>
           <div className="flex items-center justify-between px-3 py-2.5 bg-slate-50 rounded-lg border border-slate-100">
-            <span className="font-semibold text-slate-900">{currentUser.email}</span>
+            <span className="text-sm font-semibold text-slate-900">{currentUser.email}</span>
             <CircleCheck className="h-4 w-4 text-green-500 shrink-0" />
           </div>
         </div>
@@ -87,7 +87,7 @@ function PersonalDetailsCard({ currentUser, profileForm, setProfileForm, isEditi
         {/* Mobile + DOB row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="flex items-center gap-2 text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+            <label className="flex items-center gap-2 text-sm font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
               <Phone className="h-3.5 w-3.5 text-indigo-500" />
               Mobile
             </label>
@@ -99,11 +99,11 @@ function PersonalDetailsCard({ currentUser, profileForm, setProfileForm, isEditi
                 placeholder="+44..."
               />
             ) : (
-              <p className="font-semibold text-slate-900 px-3 py-2.5">{currentUser.mobile}</p>
+              <p className="text-sm font-semibold text-slate-900 px-3 py-2.5">{currentUser.mobile}</p>
             )}
           </div>
           <div>
-            <label className="flex items-center gap-2 text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+            <label className="flex items-center gap-2 text-sm font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
               <Calendar className="h-3.5 w-3.5 text-indigo-500" />
               Date of Birth
             </label>
@@ -115,7 +115,7 @@ function PersonalDetailsCard({ currentUser, profileForm, setProfileForm, isEditi
                 className="w-full rounded-lg border-2 border-slate-200 focus:border-indigo-500 focus:outline-none px-3 py-2.5 text-sm bg-white transition-colors"
               />
             ) : (
-              <p className="font-semibold text-slate-900 px-3 py-2.5">
+              <p className="text-sm font-semibold text-slate-900 px-3 py-2.5">
                 {currentUser.dob || '—'}
               </p>
             )}
@@ -125,7 +125,7 @@ function PersonalDetailsCard({ currentUser, profileForm, setProfileForm, isEditi
         {/* Gender (only shown while editing, or if set) */}
         {(isEditing || currentUser.gender) && (
           <div>
-            <label className="flex items-center gap-2 text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+            <label className="flex items-center gap-2 text-sm font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
               <User className="h-3.5 w-3.5 text-indigo-500" />
               Gender
             </label>
@@ -141,14 +141,14 @@ function PersonalDetailsCard({ currentUser, profileForm, setProfileForm, isEditi
                 <option value="Other">Other</option>
               </select>
             ) : (
-              <p className="font-semibold text-slate-900 px-3 py-2.5">{currentUser.gender}</p>
+              <p className="text-sm font-semibold text-slate-900 px-3 py-2.5">{currentUser.gender}</p>
             )}
           </div>
         )}
 
         {/* Address */}
         <div>
-          <label className="flex items-center gap-2 text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+          <label className="flex items-center gap-2 text-sm font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
             <MapPin className="h-3.5 w-3.5 text-indigo-500" />
             Address
           </label>
@@ -176,7 +176,7 @@ function PersonalDetailsCard({ currentUser, profileForm, setProfileForm, isEditi
               </div>
             </div>
           ) : (
-            <p className="font-semibold text-slate-900 px-3 py-2.5">
+            <p className="text-sm font-semibold text-slate-900 px-3 py-2.5">
               {profileForm.addressLine
                 ? `${profileForm.addressLine}, ${profileForm.country} ${profileForm.postcode}`.trim()
                 : '—'}

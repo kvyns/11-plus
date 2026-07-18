@@ -6,7 +6,6 @@ import {
   CalendarDays, CheckCircle2, ChevronDown, Eye, EyeOff,
   KeyRound, Loader2, User, UserPlus, VenusAndMars, XCircle,
 } from 'lucide-react'
-import AuthHero from '../components/auth/AuthHero.jsx'
 import IconInput from '../components/ui/IconInput.jsx'
 import SubmitButton from '../components/ui/SubmitButton.jsx'
 import AlertBanner from '../components/ui/AlertBanner.jsx'
@@ -117,9 +116,7 @@ function AddChildPage() {
       navigate('/dashboard')
       toast.success(`${formData.firstName} was added successfully.`)
     } catch (error) {
-      const message = error.message || 'Unable to add child profile. Please try again.'
-      setErrorMessage(message)
-      toast.error(message)
+      setErrorMessage(error.message || 'Unable to add child profile. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
@@ -130,17 +127,17 @@ function AddChildPage() {
       {/* Content */}
       <div className="flex flex-col items-center">
         <div className="w-full max-w-xl bg-white rounded-[1.75rem] shadow-card-xl p-6 md:p-8 border border-amber-100/60">
-          <div className="mb-6">
-            <AuthHero
-              icon={UserPlus}
-              iconBg="bg-pastel-lavender"
-              iconColor="text-pastel-lavender-ink"
-              title="Add a Child"
-              subtitle="Set up a profile so they can start practicing for the 11+."
-            />
+          <div className="flex items-center gap-3 mb-5">
+            <div className="rounded-full bg-pastel-lavender p-2.5 shrink-0">
+              <UserPlus className="h-5 w-5 text-pastel-lavender-ink" />
+            </div>
+            <div>
+              <h2 className="font-display text-lg font-bold text-slate-900">Add a Child</h2>
+              <p className="text-sm text-slate-500">Set up a profile so they can start practicing for the 11+.</p>
+            </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3">
             {errorMessage && <AlertBanner variant="error">{errorMessage}</AlertBanner>}
 
             {/* Username Input (custom — needs live status styling) */}
@@ -173,14 +170,14 @@ function AddChildPage() {
                 </span>
               </div>
               {usernameStatus === 'available' && (
-                <p className="mt-1.5 text-xs font-semibold text-emerald-600">Username is available</p>
+                <p className="mt-1.5 text-sm font-semibold text-emerald-600">Username is available</p>
               )}
               {usernameStatus === 'taken' && (
-                <p className="mt-1.5 text-xs font-semibold text-red-500">This username is already taken</p>
+                <p className="mt-1.5 text-sm font-semibold text-red-500">This username is already taken</p>
               )}
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <IconInput
                 icon={User}
                 label="First Name"
@@ -203,7 +200,7 @@ function AddChildPage() {
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {/* Gender Select */}
               <div>
                 <label className="block text-sm font-semibold text-slate-900 mb-1.5">Gender</label>
@@ -236,7 +233,7 @@ function AddChildPage() {
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <IconInput
                 icon={KeyRound}
                 label="Password"

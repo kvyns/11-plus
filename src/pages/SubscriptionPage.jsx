@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Gift, RotateCcw } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { CheckCircle2, ClipboardList, Gift, RotateCcw } from 'lucide-react'
 import { useAppStore } from '../store/appStore.jsx'
 import { useToast } from '../store/toastStore.jsx'
 import { planIdOf, getPlanCycle } from '../lib/subscriptionHelpers.js'
@@ -7,10 +8,15 @@ import fallbackPlans from '../components/subscription/fallbackPlans.js'
 import PlanCard from '../components/subscription/PlanCard.jsx'
 import PlanCardSkeleton from '../components/subscription/PlanCardSkeleton.jsx'
 import ChildPicker from '../components/subscription/ChildPicker.jsx'
+import CurrentPlanStatus from '../components/subscription/CurrentPlanStatus.jsx'
 import StickyCheckoutBar from '../components/subscription/StickyCheckoutBar.jsx'
+import StepIndicator from '../components/ui/StepIndicator.jsx'
 import ParentLayout from '../components/dashboard/ParentLayout.jsx'
 
+const STEPS = ['Choose a plan', 'Choose children', 'Confirm']
+
 function SubscriptionPage() {
+  const navigate = useNavigate()
   const { api } = useAppStore()
   const toast = useToast()
   const [selected, setSelected] = useState(null)
@@ -22,6 +28,7 @@ function SubscriptionPage() {
   const [children, setChildren] = useState([])
   const [selectedChildIds, setSelectedChildIds] = useState([])
   const [isContinuing, setIsContinuing] = useState(false)
+  const [subscribedThisSession, setSubscribedThisSession] = useState(false)
 
   useEffect(() => {
     let isCancelled = false
@@ -141,12 +148,15 @@ function SubscriptionPage() {
           ? `Subscription request submitted for ${selectedChildIds.length} children.`
           : 'Subscription request submitted for this child.'
       )
+      setSubscribedThisSession(true)
     } catch (error) {
       toast.error(error.message || 'Unable to process this subscription right now.')
     } finally {
       setIsContinuing(false)
     }
   }
+
+  const stepIndex = subscribedThisSession ? 3 : selected && selectedChildIds.length > 0 ? 2 : selected ? 1 : 0
 
   return (
     <ParentLayout title="Subscription" activePage="subscription">
@@ -167,98 +177,137 @@ function SubscriptionPage() {
         <h2 className="relative font-display text-3xl md:text-4xl font-bold text-slate-900 text-center mb-2">
           Unlock premium learning
         </h2>
-        <p className="relative text-slate-500 text-center mb-8">
+        <p className="relative text-slate-500 text-center mb-6">
           Choose the plan that fits your child's 11+ journey.
         </p>
 
-        {errorMessage && (
-          <p className="mb-6 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-600">
-            {errorMessage}
-          </p>
+        {!subscribedThisSession && (
+          <div className="relative mb-8">
+            <StepIndicator steps={STEPS} currentIndex={stepIndex} />
+          </div>
         )}
 
-        {/* Billing cycle toggle */}
-        <div className="flex justify-center mb-8">
-          <div className="inline-flex bg-slate-100 rounded-full p-1">
-            {['monthly', 'yearly'].map((cycle) => (
+        {subscribedThisSession ? (
+          <div className="relative bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-8 text-center space-y-4">
+            <div>
+              <CheckCircle2 className="h-10 w-10 text-emerald-600 mx-auto mb-2" />
+              <p className="font-display text-xl font-bold text-emerald-800">You're subscribed!</p>
+              <p className="text-sm text-emerald-700 mt-1">
+                Your plan is now active. Free mocks covered by this plan are ready to register for.
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2.5 justify-center">
               <button
-                key={cycle}
-                onClick={() => setBillingCycle(cycle)}
-                className={`px-6 py-2 rounded-full text-sm font-semibold transition-colors relative ${
-                  billingCycle === cycle
-                    ? 'bg-indigo-600 text-white shadow-md'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
+                onClick={() => navigate('/mock-tests')}
+                className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-full text-sm transition-colors shadow-btn"
               >
-                {cycle === 'monthly' ? 'Monthly' : 'Yearly'}
-                {cycle === 'yearly' && (
-                  <span
-                    className={`ml-1.5 text-[10px] font-bold ${
-                      billingCycle === cycle ? 'text-amber-300' : 'text-amber-500'
+                <ClipboardList className="h-4 w-4" />
+                Register for Mocks
+              </button>
+              <button
+                onClick={() => navigate('/dashboard')}
+                className="bg-white hover:bg-emerald-50 text-emerald-700 font-bold py-3 px-6 rounded-full text-sm transition-colors border-2 border-emerald-200"
+              >
+                Back to Dashboard
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <CurrentPlanStatus childList={children} />
+
+            {errorMessage && (
+              <p className="mb-6 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-600">
+                {errorMessage}
+              </p>
+            )}
+
+            {/* Billing cycle toggle */}
+            <div className="flex justify-center mb-8">
+              <div className="inline-flex bg-slate-100 rounded-full p-1">
+                {['monthly', 'yearly'].map((cycle) => (
+                  <button
+                    key={cycle}
+                    onClick={() => setBillingCycle(cycle)}
+                    className={`px-6 py-2 rounded-full text-sm font-semibold transition-colors relative ${
+                      billingCycle === cycle
+                        ? 'bg-indigo-600 text-white shadow-md'
+                        : 'text-slate-600 hover:text-slate-900'
                     }`}
                   >
-                    SAVE
-                  </span>
-                )}
+                    {cycle === 'monthly' ? 'Monthly' : 'Yearly'}
+                    {cycle === 'yearly' && (
+                      <span
+                        className={`ml-1.5 text-[10px] font-bold ${
+                          billingCycle === cycle ? 'text-amber-300' : 'text-amber-500'
+                        }`}
+                      >
+                        SAVE
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Plans grid */}
+            {isLoading ? (
+              <PlanCardSkeleton />
+            ) : (
+              <div className="grid sm:grid-cols-2 gap-5">
+                {visiblePlans.map((plan, index) => {
+                  const id = planIdOf(plan, index)
+                  return (
+                    <PlanCard
+                      key={id}
+                      plan={plan}
+                      id={id}
+                      index={index}
+                      billingCycle={billingCycle}
+                      isSelected={selected === id}
+                      onSelect={setSelected}
+                    />
+                  )
+                })}
+              </div>
+            )}
+
+            {/* Who is this plan for */}
+            {selected && children.length > 0 && (
+              <ChildPicker
+                childList={children}
+                selectedChildIds={selectedChildIds}
+                planChildLimit={planChildLimit}
+                onToggle={toggleChildSelection}
+              />
+            )}
+
+            {/* Restore Purchases */}
+            <div className="text-center mt-8">
+              <button
+                onClick={handleRestorePurchases}
+                disabled={isRestoring}
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600 hover:text-indigo-700 disabled:opacity-50"
+              >
+                <RotateCcw className="h-4 w-4" />
+                {isRestoring ? 'Restoring...' : 'Restore purchases'}
               </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Plans grid */}
-        {isLoading ? (
-          <PlanCardSkeleton />
-        ) : (
-          <div className="grid sm:grid-cols-2 gap-5">
-            {visiblePlans.map((plan, index) => {
-              const id = planIdOf(plan, index)
-              return (
-                <PlanCard
-                  key={id}
-                  plan={plan}
-                  id={id}
-                  index={index}
-                  billingCycle={billingCycle}
-                  isSelected={selected === id}
-                  onSelect={setSelected}
-                />
-              )
-            })}
-          </div>
+            </div>
+          </>
         )}
-
-        {/* Who is this plan for */}
-        {selected && children.length > 0 && (
-          <ChildPicker
-            childList={children}
-            selectedChildIds={selectedChildIds}
-            planChildLimit={planChildLimit}
-            onToggle={toggleChildSelection}
-          />
-        )}
-
-        {/* Restore Purchases */}
-        <div className="text-center mt-8">
-          <button
-            onClick={handleRestorePurchases}
-            disabled={isRestoring}
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600 hover:text-indigo-700 disabled:opacity-50"
-          >
-            <RotateCcw className="h-4 w-4" />
-            {isRestoring ? 'Restoring...' : 'Restore purchases'}
-          </button>
-        </div>
       </div>
 
-      <StickyCheckoutBar
-        selectedPlan={selectedPlan}
-        billingCycle={billingCycle}
-        selected={selected}
-        selectedChildIds={selectedChildIds}
-        childrenCount={children.length}
-        isContinuing={isContinuing}
-        onContinue={handleContinue}
-      />
+      {!subscribedThisSession && (
+        <StickyCheckoutBar
+          selectedPlan={selectedPlan}
+          billingCycle={billingCycle}
+          selected={selected}
+          selectedChildIds={selectedChildIds}
+          childrenCount={children.length}
+          isContinuing={isContinuing}
+          onContinue={handleContinue}
+        />
+      )}
     </ParentLayout>
   )
 }

@@ -1,6 +1,7 @@
+import { BarChart3 } from 'lucide-react'
 import { formatSeconds } from '../../lib/mockAttempt.js'
 
-function ResultCard({ result, isResultMode, mockTitle, mockDetails, mockMeta, totalQuestions, onReviewAnswers, onBackToMocks }) {
+function ResultCard({ result, isResultMode, mockTitle, mockDetails, mockMeta, totalQuestions, onReviewAnswers, onViewLeaderboard, onBackToMocks }) {
   return (
     <div className="max-w-2xl mx-auto bg-white rounded-[1.75rem] p-6 md:p-8 shadow-card-xl border border-amber-100/60 text-center">
       <div className="flex justify-center mb-4">
@@ -43,6 +44,13 @@ function ResultCard({ result, isResultMode, mockTitle, mockDetails, mockMeta, to
           className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-full text-sm transition-colors shadow-btn"
         >
           Review Answers
+        </button>
+        <button
+          onClick={onViewLeaderboard}
+          className="w-full flex items-center justify-center gap-2 bg-white hover:bg-indigo-50 text-indigo-600 font-bold py-3 rounded-full text-sm transition-colors border-2 border-indigo-200"
+        >
+          <BarChart3 className="h-4 w-4" />
+          View Leaderboard
         </button>
         <button
           onClick={onBackToMocks}

@@ -62,7 +62,7 @@ function ChangeChildPasswordPage() {
         >
           <ChevronLeft className="h-6 w-6" />
         </button>
-        <h1 className="font-display text-lg font-bold text-white">Change Child Password</h1>
+        <h1 className="font-display text-xl font-bold text-white">Change Child Password</h1>
       </div>
 
       {/* Content */}
@@ -137,7 +137,7 @@ function ChangeChildPasswordPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-full text-base transition-colors shadow-btn disabled:opacity-60 flex items-center justify-center gap-2 mt-2"
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-full text-lg transition-colors shadow-btn disabled:opacity-60 flex items-center justify-center gap-2 mt-2"
             >
               {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
               {isSubmitting ? 'Updating...' : 'Change Password'}

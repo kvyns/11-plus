@@ -17,12 +17,15 @@ import SubscriptionPage from './pages/SubscriptionPage.jsx'
 import ProfilePage from './pages/ProfilePage.jsx'
 import AddChildPage from './pages/AddChildPage.jsx'
 import ChangeChildPasswordPage from './pages/ChangeChildPasswordPage.jsx'
+import ChildPerformancePage from './pages/ChildPerformancePage.jsx'
 import SchoolsPage from './pages/SchoolsPage.jsx'
 import ChildLoginPage from './pages/ChildLoginPage.jsx'
 import ChildDashboardPage from './pages/ChildDashboardPage.jsx'
 import ChildProfilePage from './pages/ChildProfilePage.jsx'
 import ChildMockTestsPage from './pages/ChildMockTestsPage.jsx'
 import MockAttemptPage from './pages/MockAttemptPage.jsx'
+import MockPaymentConfirmationPage from './pages/MockPaymentConfirmationPage.jsx'
+import MockPaymentCancelPage from './pages/MockPaymentCancelPage.jsx'
 
 function App() {
   return (
@@ -38,6 +41,8 @@ function App() {
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/activate-account" element={<ActivateAccountPage />} />
             <Route path="/child-login" element={<ChildLoginPage />} />
+            <Route path="/confirmation" element={<MockPaymentConfirmationPage />} />
+            <Route path="/cancel" element={<MockPaymentCancelPage />} />
 
             <Route element={<ProtectedRoute />}>
               <Route path="/dashboard" element={<DashboardPage />} />
@@ -47,6 +52,7 @@ function App() {
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/add-child" element={<AddChildPage />} />
               <Route path="/change-child-password/:childID" element={<ChangeChildPasswordPage />} />
+              <Route path="/child-performance/:childID" element={<ChildPerformancePage />} />
               <Route path="/schools" element={<SchoolsPage />} />
             </Route>
 
