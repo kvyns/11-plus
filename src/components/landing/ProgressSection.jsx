@@ -38,7 +38,7 @@ function ProgressSection() {
               <p className="font-display text-3xl font-bold text-amber-400">
                 <Counter to={500} suffix="+" />
               </p>
-              <p className="text-sm text-slate-400">Mock questions</p>
+              <p className="text-sm text-slate-400">Quiz questions</p>
             </div>
             <div>
               <p className="font-display text-3xl font-bold text-amber-400">

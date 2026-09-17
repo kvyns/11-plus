@@ -1,6 +1,6 @@
 import { Bookmark, BookmarkCheck, ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react'
 
-function AttemptActionBar({ current, currentIndex, totalQuestions, answers, markedForReview, onPrevious, onNext, onClear, onToggleMark, onSubmitClick }) {
+function AttemptActionBar({ current, currentIndex, totalQuestions, answers, markedForReview, onPrevious, onNext, onClear, onToggleMark, onSubmitClick, submitLabel = 'Submit Mock' }) {
   const isLast = currentIndex === totalQuestions - 1
 
   return (
@@ -48,7 +48,7 @@ function AttemptActionBar({ current, currentIndex, totalQuestions, answers, mark
             onClick={onSubmitClick}
             className="rounded-full bg-indigo-600 hover:bg-indigo-700 px-10 py-3 text-sm font-bold text-white shadow-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 transition-colors"
           >
-            Submit Mock
+            {submitLabel}
           </button>
         ) : (
           <button

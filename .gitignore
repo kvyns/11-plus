@@ -27,6 +27,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+.agents/
+.claude/
 
 # Reference-only material not needed to build/run the app
 Assets/

@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ClipboardList, Gift, Heart, House, LogOut, Menu, School, UserCheck, UserPlus } from 'lucide-react'
 import { useAppStore } from '../../store/appStore.jsx'
 import { useToast } from '../../store/toastStore.jsx'
 import { buildMediaUrl } from '../../services/api.js'
+import { initials } from '../../lib/childHelpers.js'
 import ConfirmDialog from '../ui/ConfirmDialog.jsx'
 import Sidebar from './Sidebar.jsx'
 
@@ -25,6 +26,11 @@ function ParentLayout({ title, activePage, children }) {
   const profilePicKey = user?.profilePic || user?.profilePicKey || user?.imageKey || user?.image_key
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
+  const [imgFailed, setImgFailed] = useState(false)
+
+  useEffect(() => {
+    setImgFailed(false)
+  }, [profilePicKey])
 
   const handleMenuClick = (page) => {
     if (page === 'logout') {
@@ -74,10 +80,15 @@ function ParentLayout({ title, activePage, children }) {
           onClick={() => navigate('/profile')}
           className="w-10 h-10 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-lg shadow-lg shadow-indigo-600/30 overflow-hidden"
         >
-          {profilePicKey ? (
-            <img src={buildMediaUrl(profilePicKey)} alt="Your profile" className="h-full w-full object-cover" />
+          {profilePicKey && !imgFailed ? (
+            <img
+              src={buildMediaUrl(profilePicKey)}
+              alt="Your profile"
+              className="h-full w-full object-cover"
+              onError={() => setImgFailed(true)}
+            />
           ) : (
-            user?.firstName?.charAt(0) || 'K'
+            initials(`${user?.firstName || ''} ${user?.lastName || ''}`) || 'K'
           )}
         </button>
       </div>

@@ -5,6 +5,7 @@ import { Loader2 } from 'lucide-react'
 import ParentLayout from '../components/dashboard/ParentLayout.jsx'
 import PerformanceStatsRow from '../components/performance/PerformanceStatsRow.jsx'
 import SubjectBreakdownGrid from '../components/performance/SubjectBreakdownGrid.jsx'
+import { fetchAllQuizHistory, quizCountsBySubject } from '../lib/childHelpers.js'
 
 function ChildPerformancePage() {
   const { childID } = useParams()
@@ -25,9 +26,19 @@ function ChildPerformancePage() {
 
       try {
         const response = await api.quiz.childPerformance({ childID })
-        if (!isCancelled) {
-          setPerformance(response.performance || null)
-          setSubjects(response.subjects || [])
+        if (isCancelled) return
+        const rawSubjects = response.subjects || []
+        setPerformance(response.performance || null)
+        setSubjects(rawSubjects)
+
+        try {
+          const history = await fetchAllQuizHistory(api, childID)
+          if (isCancelled) return
+          const counts = quizCountsBySubject(history)
+          setSubjects(rawSubjects.map((s) => ({ ...s, quizCount: counts[s.subject] ?? 0 })))
+        } catch {
+          // Subject-wise counts are a nice-to-have on top of the core performance
+          // data already rendered above — don't fail the whole page for this.
         }
       } catch (error) {
         if (!isCancelled) {
@@ -42,9 +53,9 @@ function ChildPerformancePage() {
     return () => { isCancelled = true }
   }, [api.quiz, childID])
 
-  const totalPoints = performance?.totalPoints ?? performance?.total_points ?? 0
+  const totalCorrect = performance?.totalCorrect ?? 0
   const accuracy = performance?.accuracy ?? 0
-  const completedQuizzes = performance?.completedQuizzes ?? performance?.completed_quizzes ?? 0
+  const totalQuizzes = performance?.totalQuizzes ?? 0
 
   return (
     <ParentLayout title={`${childName}'s Performance`} activePage="dashboard">
@@ -64,9 +75,9 @@ function ChildPerformancePage() {
         {!isLoading && !errorMessage && (
           <>
             <PerformanceStatsRow
-              totalPoints={totalPoints}
+              totalCorrect={totalCorrect}
               accuracy={accuracy}
-              completedQuizzes={completedQuizzes}
+              totalQuizzes={totalQuizzes}
             />
 
             <h2 className="font-display text-xl font-bold text-slate-900 mb-4">By Subject</h2>

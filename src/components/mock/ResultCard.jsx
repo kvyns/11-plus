@@ -1,7 +1,11 @@
 import { BarChart3 } from 'lucide-react'
 import { formatSeconds } from '../../lib/mockAttempt.js'
 
-function ResultCard({ result, isResultMode, mockTitle, mockDetails, mockMeta, totalQuestions, onReviewAnswers, onViewLeaderboard, onBackToMocks }) {
+function ResultCard({
+  result, isResultMode, mockTitle, mockDetails, mockMeta, totalQuestions,
+  onReviewAnswers, onViewLeaderboard, onBackToMocks,
+  completeMessage = 'Mock complete!', backLabel = 'Back to Mocks', showLeaderboard = true,
+}) {
   return (
     <div className="max-w-2xl mx-auto bg-white rounded-[1.75rem] p-6 md:p-8 shadow-card-xl border border-amber-100/60 text-center">
       <div className="flex justify-center mb-4">
@@ -12,7 +16,7 @@ function ResultCard({ result, isResultMode, mockTitle, mockDetails, mockMeta, to
         </div>
       </div>
       <h2 className="font-display text-2xl font-bold text-slate-900 mb-1">
-        {isResultMode ? mockTitle : 'Mock complete!'}
+        {isResultMode ? mockTitle : completeMessage}
       </h2>
       {!isResultMode && mockDetails?.title && (
         <p className="text-sm text-slate-500 mb-1">{mockDetails.title}</p>
@@ -45,18 +49,20 @@ function ResultCard({ result, isResultMode, mockTitle, mockDetails, mockMeta, to
         >
           Review Answers
         </button>
-        <button
-          onClick={onViewLeaderboard}
-          className="w-full flex items-center justify-center gap-2 bg-white hover:bg-indigo-50 text-indigo-600 font-bold py-3 rounded-full text-sm transition-colors border-2 border-indigo-200"
-        >
-          <BarChart3 className="h-4 w-4" />
-          View Leaderboard
-        </button>
+        {showLeaderboard && (
+          <button
+            onClick={onViewLeaderboard}
+            className="w-full flex items-center justify-center gap-2 bg-white hover:bg-indigo-50 text-indigo-600 font-bold py-3 rounded-full text-sm transition-colors border-2 border-indigo-200"
+          >
+            <BarChart3 className="h-4 w-4" />
+            View Leaderboard
+          </button>
+        )}
         <button
           onClick={onBackToMocks}
           className="w-full bg-white hover:bg-indigo-50 text-indigo-600 font-bold py-3 rounded-full text-sm transition-colors border-2 border-indigo-200"
         >
-          Back to Mocks
+          {backLabel}
         </button>
       </div>
     </div>

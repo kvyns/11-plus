@@ -1,4 +1,5 @@
 import { X } from 'lucide-react'
+import { initials } from '../../lib/childHelpers.js'
 
 function ChildSidebar({ sidebarOpen, setSidebarOpen, childName, menuItems, activePage, onMenuClick }) {
   return (
@@ -25,7 +26,7 @@ function ChildSidebar({ sidebarOpen, setSidebarOpen, childName, menuItems, activ
       <div className="px-6 pb-6 mb-4 border-b border-slate-100">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-full bg-pastel-lavender text-pastel-lavender-ink font-bold flex items-center justify-center text-lg">
-            {childName.charAt(0).toUpperCase()}
+            {initials(childName)}
           </div>
           <div className="min-w-0">
             <p className="font-display font-semibold text-slate-900 truncate">{childName}</p>

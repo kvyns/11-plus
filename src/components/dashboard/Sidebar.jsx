@@ -1,7 +1,15 @@
+import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 import { buildMediaUrl } from '../../services/api.js'
+import { initials } from '../../lib/childHelpers.js'
 
 function Sidebar({ sidebarOpen, setSidebarOpen, user, profilePicKey, menuItems, activePage, onMenuClick }) {
+  const [imgFailed, setImgFailed] = useState(false)
+
+  useEffect(() => {
+    setImgFailed(false)
+  }, [profilePicKey])
+
   return (
     <div
       className={`fixed top-0 left-0 h-screen w-72 bg-white border-r border-slate-100 transform transition-transform duration-300 z-40 pt-6 ${
@@ -26,10 +34,15 @@ function Sidebar({ sidebarOpen, setSidebarOpen, user, profilePicKey, menuItems, 
       <div className="px-6 pb-6 mb-4 border-b border-slate-100">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 font-bold flex items-center justify-center text-lg overflow-hidden">
-            {profilePicKey ? (
-              <img src={buildMediaUrl(profilePicKey)} alt="Your profile" className="h-full w-full object-cover" />
+            {profilePicKey && !imgFailed ? (
+              <img
+                src={buildMediaUrl(profilePicKey)}
+                alt="Your profile"
+                className="h-full w-full object-cover"
+                onError={() => setImgFailed(true)}
+              />
             ) : (
-              user?.firstName?.charAt(0) || 'K'
+              initials(`${user?.firstName || ''} ${user?.lastName || ''}`) || 'K'
             )}
           </div>
           <div className="min-w-0">

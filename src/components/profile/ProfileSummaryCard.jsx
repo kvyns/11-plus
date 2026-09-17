@@ -1,7 +1,15 @@
+import { useEffect, useState } from 'react'
 import { Camera, Loader2, Star } from 'lucide-react'
 import { buildMediaUrl } from '../../services/api.js'
+import { initials } from '../../lib/childHelpers.js'
 
 function ProfileSummaryCard({ currentUser, isUploadingPic, fileInputRef, onPicSelected }) {
+  const [imgFailed, setImgFailed] = useState(false)
+
+  useEffect(() => {
+    setImgFailed(false)
+  }, [currentUser.profilePicKey])
+
   return (
     <div className="relative overflow-hidden bg-white rounded-[1.75rem] p-6 shadow-card-xl border border-amber-100/60 text-center">
       <div
@@ -10,14 +18,15 @@ function ProfileSummaryCard({ currentUser, isUploadingPic, fileInputRef, onPicSe
       />
       <div className="relative w-20 h-20 mx-auto mb-4">
         <div className="h-full w-full overflow-hidden rounded-full bg-pastel-lavender text-pastel-lavender-ink font-display font-bold text-3xl flex items-center justify-center shadow-card">
-          {currentUser.profilePicKey ? (
+          {currentUser.profilePicKey && !imgFailed ? (
             <img
               src={buildMediaUrl(currentUser.profilePicKey)}
               alt={`${currentUser.firstName}'s profile`}
               className="h-full w-full object-cover"
+              onError={() => setImgFailed(true)}
             />
           ) : (
-            currentUser.firstName.charAt(0)
+            initials(`${currentUser.firstName} ${currentUser.lastName || ''}`)
           )}
           {isUploadingPic && (
             <div className="absolute inset-0 flex items-center justify-center bg-slate-900/40">

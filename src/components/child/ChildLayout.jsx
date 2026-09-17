@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { BarChart3, BookOpen, ClipboardList, LogOut, Menu } from 'lucide-react'
+import { BarChart3, BookOpen, ClipboardList, History, LogOut, Menu } from 'lucide-react'
 import { useAppStore } from '../../store/appStore.jsx'
 import { useToast } from '../../store/toastStore.jsx'
+import { initials } from '../../lib/childHelpers.js'
 import ConfirmDialog from '../ui/ConfirmDialog.jsx'
 import ChildSidebar from './ChildSidebar.jsx'
 
@@ -10,6 +11,7 @@ const menuItems = [
   { Icon: BookOpen, label: 'Home', page: 'child-dashboard' },
   { Icon: ClipboardList, label: 'Mock Tests', page: 'child-mocks' },
   { Icon: BarChart3, label: 'My Progress', page: 'child-profile' },
+  { Icon: History, label: 'Quiz History', page: 'quiz-history' },
   { Icon: LogOut, label: 'Logout', page: 'logout' },
 ]
 
@@ -25,6 +27,7 @@ function ChildLayout({ title, activePage, childName, children }) {
     'child-dashboard': '/child-dashboard',
     'child-mocks': '/child-mocks',
     'child-profile': '/child-profile',
+    'quiz-history': '/quiz-history',
   }
 
   const handleMenuClick = (page) => {
@@ -66,7 +69,7 @@ function ChildLayout({ title, activePage, childName, children }) {
           onClick={() => navigate('/child-profile')}
           className="w-10 h-10 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-lg shadow-lg shadow-indigo-600/30"
         >
-          {resolvedChildName.charAt(0).toUpperCase()}
+          {initials(resolvedChildName)}
         </button>
       </div>
 

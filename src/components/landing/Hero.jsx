@@ -107,7 +107,7 @@ function Hero({ navigate }) {
 
         <StickerBadge
           icon={Trophy}
-          label="500+ Mock Questions"
+          label="500+ Quiz Questions"
           sublabel="Across all subjects"
           rotate={-6}
           delay={0.6}

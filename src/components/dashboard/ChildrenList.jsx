@@ -1,7 +1,7 @@
 import { UserPlus } from 'lucide-react'
 import ChildCard from './ChildCard.jsx'
 
-function ChildrenList({ childList, onAddAnother, onChangePassword, onRemoveClick, onViewPerformance, performanceByChildId, loadingPerformance }) {
+function ChildrenList({ childList, onAddAnother, onEditProfile, onChangePassword, onRemoveClick, onViewPerformance, performanceByChildId, loadingPerformance }) {
   return (
     <div className="text-left mb-10">
       <div className="flex items-center justify-between mb-4">
@@ -25,6 +25,7 @@ function ChildrenList({ childList, onAddAnother, onChangePassword, onRemoveClick
               key={childId}
               child={child}
               index={i}
+              onEditProfile={onEditProfile}
               onChangePassword={onChangePassword}
               onRemoveClick={onRemoveClick}
               onViewPerformance={onViewPerformance}

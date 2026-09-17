@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppStore } from '../store/appStore.jsx'
 import { useToast } from '../store/toastStore.jsx'
-import { CheckCircle2, FileQuestion, BookOpen, BarChart3, Loader2, Target } from 'lucide-react'
+import { CheckCircle2, FileQuestion, BookOpen, BarChart3, Loader2, Sparkles, Target } from 'lucide-react'
 import ChildLayout from '../components/child/ChildLayout.jsx'
 
 const subjectCards = [
@@ -48,9 +48,13 @@ function ChildDashboardPage() {
     navigate(`/child-mocks?subject=${subject}`)
   }
 
-  // Confirmed shape (per API doc comment on /child/dashboard): child.name,
-  // performance.{accuracy, totalCorrect, totalQuestions}, subjects[]. There
-  // is no totalPoints/completedQuizzes/streak field in the real response.
+  const handleStartFreeQuiz = (card) => {
+    navigate(`/quiz/${card.subject}`, {
+      state: { quizType: 'FREE_QUIZ', title: `${card.title} Free Quiz` },
+    })
+  }
+
+
   const performance = dashboardData?.performance || {}
   const accuracy = performance.accuracy ?? 0
   const totalCorrect = performance.totalCorrect ?? 0
@@ -58,7 +62,7 @@ function ChildDashboardPage() {
   const subjects = dashboardData?.subjects || []
   const child = dashboardData?.child || {}
   const childName = child.name || user?.firstName || user?.childName || user?.name || user?.username || 'Champion'
-  const subjectAccuracy = (subjectKey) => subjects.find((s) => s.subject === subjectKey)?.accuracy
+  const subjectMeta = (subjectKey) => subjects.find((s) => s.subject === subjectKey) || {}
 
   return (
     <ChildLayout title="11+ Learning" activePage="child-dashboard" childName={childName}>
@@ -108,23 +112,37 @@ function ChildDashboardPage() {
             <h3 className="font-display text-xl font-bold text-slate-900 mb-4">Choose a Subject</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
               {subjectCards.map((card) => {
-                const cardAccuracy = subjectAccuracy(card.subject)
+                const meta = subjectMeta(card.subject)
                 return (
-                <button
+                <div
                   key={card.subject}
-                  onClick={() => handleSubjectClick(card.subject)}
                   className={`group rounded-2xl p-3 shadow-card transition-shadow hover:shadow-card-lg text-left ${card.pastel}`}
                 >
-                  <img
-                    src={card.image}
-                    alt={card.title}
-                    className="aspect-square w-full rounded-2xl object-cover shadow-card ring-4 ring-white transition-transform duration-300 group-hover:-translate-y-1"
-                  />
-                  <p className="mt-3 text-sm font-display font-bold text-slate-900 text-center">{card.title}</p>
-                  {cardAccuracy != null && (
-                    <p className="text-xs text-slate-500 text-center mt-0.5">{cardAccuracy}% accuracy</p>
+                  <button onClick={() => handleSubjectClick(card.subject)} className="w-full text-left">
+                    <img
+                      src={card.image}
+                      alt={card.title}
+                      className="aspect-square w-full rounded-2xl object-cover shadow-card ring-4 ring-white transition-transform duration-300 group-hover:-translate-y-1"
+                    />
+                    <p className="mt-3 text-sm font-display font-bold text-slate-900 text-center">{card.title}</p>
+                    {meta.accuracy != null && (
+                      <p className="text-xs text-slate-500 text-center mt-0.5">{meta.accuracy}% accuracy</p>
+                    )}
+                  </button>
+                  {meta.freeQuizUsed ? (
+                    <p className="mt-2 text-center text-xs font-semibold text-slate-400 bg-white/70 rounded-full py-1.5">
+                      Free Test Used
+                    </p>
+                  ) : (
+                    <button
+                      onClick={() => handleStartFreeQuiz(card)}
+                      className="mt-2 w-full flex items-center justify-center gap-1.5 rounded-full bg-white/80 py-1.5 text-xs font-semibold text-slate-900 hover:bg-white transition-colors"
+                    >
+                      <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+                      Start Free Quiz
+                    </button>
                   )}
-                </button>
+                </div>
                 )
               })}
             </div>

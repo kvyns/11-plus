@@ -6,7 +6,7 @@ import LandingHeader from '../components/landing/LandingHeader.jsx'
 import Hero from '../components/landing/Hero.jsx'
 import WhyUsSection from '../components/landing/WhyUsSection.jsx'
 import MarqueeSection from '../components/landing/MarqueeSection.jsx'
-import SubjectsSection from '../components/landing/SubjectsSection.jsx'
+import SubscriptionPreviewSection from '../components/landing/SubscriptionPreviewSection.jsx'
 import ProgressSection from '../components/landing/ProgressSection.jsx'
 import CtaSection from '../components/landing/CtaSection.jsx'
 
@@ -31,7 +31,7 @@ function LandingPage() {
 
       <WaveDivider fromColor="#0f172a" toColor="#fffaf0" flip />
 
-      <SubjectsSection />
+      <SubscriptionPreviewSection />
 
       <ProgressSection />
 

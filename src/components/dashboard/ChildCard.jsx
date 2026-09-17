@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { BarChart3, Cake, KeyRound, MoreVertical, Sparkles, UserMinus, VenusAndMars } from 'lucide-react'
-import { childName } from '../../lib/childHelpers.js'
+import { BarChart3, Cake, GraduationCap, KeyRound, MoreVertical, Pencil, Sparkles, UserMinus, VenusAndMars } from 'lucide-react'
+import { childName, initials, formatYearGroup } from '../../lib/childHelpers.js'
 
 function PerformanceRing({ accuracy, hasData }) {
   const clamped = Math.min(100, Math.max(0, accuracy))
@@ -19,12 +19,13 @@ function PerformanceRing({ accuracy, hasData }) {
   )
 }
 
-function ChildCard({ child, index, onChangePassword, onRemoveClick, onViewPerformance, performance, isLoadingPerformance }) {
+function ChildCard({ child, index, onEditProfile, onChangePassword, onRemoveClick, onViewPerformance, performance, isLoadingPerformance }) {
   const name = childName(child, index)
-  const initial = name.charAt(0).toUpperCase()
-  const completedQuizzes = performance?.completedQuizzes ?? performance?.completed_quizzes ?? 0
+  const initial = initials(name)
+  const yearGroup = formatYearGroup(child.yearGroup)
+  const totalQuizzes = performance?.totalQuizzes ?? 0
   const accuracy = performance?.accuracy ?? 0
-  const hasPerformanceData = completedQuizzes > 0
+  const hasPerformanceData = totalQuizzes > 0
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef(null)
 
@@ -68,6 +69,16 @@ function ChildCard({ child, index, onChangePassword, onRemoveClick, onViewPerfor
               <button
                 onClick={() => {
                   setMenuOpen(false)
+                  onEditProfile(child)
+                }}
+                className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
+              >
+                <Pencil className="h-4 w-4" />
+                Edit profile
+              </button>
+              <button
+                onClick={() => {
+                  setMenuOpen(false)
                   onChangePassword(child)
                 }}
                 className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
@@ -90,7 +101,7 @@ function ChildCard({ child, index, onChangePassword, onRemoveClick, onViewPerfor
         </div>
       </div>
 
-      {(child.gender || child.dob) && (
+      {(child.gender || child.dob || yearGroup) && (
         <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-slate-500">
           {child.gender && (
             <span className="flex items-center gap-1.5">
@@ -104,6 +115,12 @@ function ChildCard({ child, index, onChangePassword, onRemoveClick, onViewPerfor
               {child.dob}
             </span>
           )}
+          {yearGroup && (
+            <span className="flex items-center gap-1.5">
+              <GraduationCap className="h-4 w-4 text-slate-400" />
+              {yearGroup}
+            </span>
+          )}
         </div>
       )}
 
@@ -114,7 +131,7 @@ function ChildCard({ child, index, onChangePassword, onRemoveClick, onViewPerfor
           {isLoadingPerformance ? (
             <p className="text-sm text-slate-400 mt-1">Loading...</p>
           ) : hasPerformanceData ? (
-            <p className="text-sm text-slate-500 mt-1">{completedQuizzes} quizzes completed</p>
+            <p className="text-sm text-slate-500 mt-1">{totalQuizzes} quizzes completed</p>
           ) : (
             <p className="flex items-center gap-1.5 text-sm text-slate-500 mt-1">
               <Sparkles className="h-4 w-4 text-amber-500 shrink-0" />

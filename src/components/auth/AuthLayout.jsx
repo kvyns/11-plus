@@ -66,7 +66,7 @@ function AuthLayout({ children, maxWidth = 'max-w-md', onBack }) {
 
           <StickerBadge
             icon={CheckCircle2}
-            label="500+ Mock Questions"
+            label="500+ Quiz Questions"
             sublabel="Across all subjects"
             rotate={-3}
             delay={0.5}

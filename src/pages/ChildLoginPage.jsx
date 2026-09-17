@@ -79,6 +79,18 @@ function ChildLoginPage() {
             }
           />
 
+          {/* Children don't have their own email — this resets the parent
+              account's password via the same email-based flow as parent login. */}
+          <div className="text-right">
+            <button
+              type="button"
+              onClick={() => navigate('/forgot-password')}
+              className="text-indigo-600 hover:text-indigo-700 font-semibold text-sm"
+            >
+              Forgot Password?
+            </button>
+          </div>
+
           <SubmitButton loading={isSubmitting} loadingText="Logging in...">
             Login as Child
           </SubmitButton>

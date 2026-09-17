@@ -17,13 +17,16 @@ import SubscriptionPage from './pages/SubscriptionPage.jsx'
 import ProfilePage from './pages/ProfilePage.jsx'
 import AddChildPage from './pages/AddChildPage.jsx'
 import ChangeChildPasswordPage from './pages/ChangeChildPasswordPage.jsx'
+import EditChildProfilePage from './pages/EditChildProfilePage.jsx'
 import ChildPerformancePage from './pages/ChildPerformancePage.jsx'
 import SchoolsPage from './pages/SchoolsPage.jsx'
 import ChildLoginPage from './pages/ChildLoginPage.jsx'
 import ChildDashboardPage from './pages/ChildDashboardPage.jsx'
 import ChildProfilePage from './pages/ChildProfilePage.jsx'
 import ChildMockTestsPage from './pages/ChildMockTestsPage.jsx'
+import QuizHistoryPage from './pages/QuizHistoryPage.jsx'
 import MockAttemptPage from './pages/MockAttemptPage.jsx'
+import QuizAttemptPage from './pages/QuizAttemptPage.jsx'
 import MockPaymentConfirmationPage from './pages/MockPaymentConfirmationPage.jsx'
 import MockPaymentCancelPage from './pages/MockPaymentCancelPage.jsx'
 
@@ -52,6 +55,7 @@ function App() {
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/add-child" element={<AddChildPage />} />
               <Route path="/change-child-password/:childID" element={<ChangeChildPasswordPage />} />
+              <Route path="/edit-child/:childID" element={<EditChildProfilePage />} />
               <Route path="/child-performance/:childID" element={<ChildPerformancePage />} />
               <Route path="/schools" element={<SchoolsPage />} />
             </Route>
@@ -59,9 +63,11 @@ function App() {
             <Route element={<ChildProtectedRoute />}>
               <Route path="/child-dashboard" element={<ChildDashboardPage />} />
               <Route path="/child-profile" element={<ChildProfilePage />} />
+              <Route path="/quiz-history" element={<QuizHistoryPage />} />
               <Route path="/child-mocks" element={<ChildMockTestsPage />} />
               <Route path="/child-mocks/:mockID" element={<MockAttemptPage />} />
               <Route path="/child-mocks/:mockID/result" element={<MockAttemptPage />} />
+              <Route path="/quiz/:subject" element={<QuizAttemptPage />} />
             </Route>
           </Routes>
         </Router>

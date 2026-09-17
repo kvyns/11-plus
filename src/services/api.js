@@ -75,9 +75,7 @@ export const childApi = {
   updateChild: (token, payload) => request({ url: '/child/update', method: 'POST', body: payload, headers: getAuthHeaders(token), baseUrl: AUTH_BASE_URL }),
   archiveChild: (token, payload) => request({ url: '/child/archive', method: 'POST', body: payload, headers: getAuthHeaders(token), baseUrl: AUTH_BASE_URL }),
   removeChild: (token, payload) => request({ url: '/child/remove', method: 'POST', body: payload, headers: getAuthHeaders(token), baseUrl: AUTH_BASE_URL }),
-  // Not documented in the API spec (only the parent's own /changePassword is) —
-  // this endpoint name is a best guess following the /child/* convention and
-  // may need to change once the backend confirms the real path.
+
   changeChildPassword: (token, payload) => request({ url: '/child/changePassword', method: 'POST', body: payload, headers: getAuthHeaders(token), baseUrl: AUTH_BASE_URL }),
   childLogin: (payload) => request({ url: '/child/login', method: 'POST', body: payload, baseUrl: AUTH_BASE_URL }),
   childLogout: (payload) => request({ url: '/child/logout', method: 'POST', body: payload, baseUrl: AUTH_BASE_URL }),
@@ -131,7 +129,4 @@ export const notificationApi = {
 export const mediaBaseUrl = import.meta.env.VITE_MEDIA_BASE_URL || 'https://d1rbn1wov6bp1h.cloudfront.net'
 export const buildMediaUrl = (imageKey) => `${mediaBaseUrl}/${imageKey}`
 
-// Not present in .env.example until a real key is added — Stripe Elements
-// (loadStripe) simply won't initialize without it, and the paid-mock
-// checkout form shows a "not configured" state instead of erroring.
 export const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || ''

@@ -70,11 +70,11 @@ function DashboardPage() {
 
   const aggregateStats = useMemo(() => {
     const performances = Object.values(performanceByChildId).filter(Boolean)
-    const withActivity = performances.filter((p) => (p.completedQuizzes ?? p.completed_quizzes ?? 0) > 0)
+    const withActivity = performances.filter((p) => (p.totalQuizzes ?? 0) > 0)
     const avgAccuracy = withActivity.length
       ? Math.round(withActivity.reduce((sum, p) => sum + (p.accuracy ?? 0), 0) / withActivity.length)
       : null
-    const testsCompleted = performances.reduce((sum, p) => sum + (p.completedQuizzes ?? p.completed_quizzes ?? 0), 0)
+    const testsCompleted = performances.reduce((sum, p) => sum + (p.totalQuizzes ?? 0), 0)
     return { avgAccuracy, testsCompleted }
   }, [performanceByChildId])
 
@@ -82,6 +82,10 @@ function DashboardPage() {
     navigate(`/change-child-password/${child.childID || child.id}`, {
       state: { childName: childName(child, 0), childUsername: child.username },
     })
+  }
+
+  const openEditProfile = (child) => {
+    navigate(`/edit-child/${child.childID || child.id}`, { state: { child } })
   }
 
   const confirmRemoveChild = async () => {
@@ -141,6 +145,7 @@ function DashboardPage() {
           <ChildrenList
             childList={children}
             onAddAnother={() => navigate('/add-child')}
+            onEditProfile={openEditProfile}
             onChangePassword={openChangePassword}
             onRemoveClick={setRemoveConfirmChild}
             onViewPerformance={(child) =>
